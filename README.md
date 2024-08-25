@@ -51,3 +51,20 @@ zAMPExplorer is divided into several tabs, each dedicated to a specific type of 
 - **RDA Plot**: Perform redundancy analysis (RDA) to explore the association between your samples and explanatory variables.
 
 
+## Troubleshooting and FAQ
+
+### Common issues
+
+- **Issue**: App fails to launch.
+  - **Solution**: Ensure all dependencies are installed by running `source("Dependencies.R")`.
+
+- **Issue**: Plots are not displaying correctly.
+  - **Solution**: Verify your R version is 4.0 or later and that all necessary libraries are installed.
+
+### FAQ
+
+- **Q**: What file types can I upload?
+  - **A**: zAMP Explorer supports `.rds` files containing `phyloseq` objects.
+
+- **Q**: How do I update the app with new features?
+  - **A**: Pull the latest updates from the GitHub repository, or fork the project and make changes to your fork.
