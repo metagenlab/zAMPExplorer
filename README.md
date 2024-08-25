@@ -12,7 +12,7 @@ A typical `phyloseq` object contains the following components:
 ## refseq()      DNAStringSet:      [ 5 reference sequences ]
 ```
 
-For more information on the [phyloseq package](https://rdrr.io/bioc/phyloseq/man/phyloseq-package.html), please visit the official [phyloseq documentation](https://rdrr.io/bioc/phyloseq/).
+For more information on the [phyloseq package](https://rdrr.io/bioc/phyloseq/man/phyloseq-package.html), please visit the official [phyloseq documentation](https://rdrr.io/bioc/phyloseq/man/phyloseq.html).
 
 
 zAMPExplorer enables users to perform a wide range of microbiota and statistical analyses, including compositional barplot, relative abundance heatmap, community diversity (alpha diversity), community similarity through unsupervised (NMDS/PCoA) and supervised (RDA) ordinations, and community typing (or clustering) of microbial profiles using Dirichlet Multinomial Mixtures (DMM). All of these analyses are made accessible through an intuitive graphical interface, bridging the gap between complex command-line bioinformatics processing and user-friendly data exploration.
