@@ -109,6 +109,7 @@ The following R packages are integral to the functionality of zAMP Explorer. We 
 - **MicEco**: [Various functions for analysis for microbial community data](https://github.com/Russel88/MicEco)
 - **metagMisc**: [Miscellaneous functions for metabarcoding and metagenomic analysis](https://github.com/vmikk/metagMisc)
 - **mia**: [mia - Microbiome analysis](https://microbiome.github.io/mia/)
+- **DirichletMultinomial**: [Dirichlet-Multinomial Mixture Model Machine Learning for Microbiome Data](https://bioconductor.org/packages/release/bioc/html/DirichletMultinomial.html)
 
 For detailed information about each package, visit the provided links.
 
