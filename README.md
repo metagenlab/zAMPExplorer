@@ -35,3 +35,21 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
    shiny::runApp("path_to_your_app")
    ```
 
+
+## Using zAMPExplorer
+
+### Overview of the interface
+
+zAMPExplorer is divided into several tabs, each dedicated to a specific type of analysis:
+
+- **Upload Data**: Upload your `phyloseq` object here. This object is the output of the zAMP pipeline and serves as the input for all downstream analyses in the app.
+- **Reads and Taxa Overview**: Visualize the total number of reads per sample and the estimated number of organisms in each sample at different taxonomic levels.
+- **Compositional Barplot**: Create interactive barplots to visualize the relative abundance of taxa within your samples.
+- **Heatmap**: Generate heatmaps to visualize the relative abundance of taxa across samples and sample groups.
+- **Alpha Diversity**: Analyze and visualize alpha diversity metrics, comparing diversity within groups.
+- **Beta Diversity**: Explore beta diversity using different distance matrices to assess similarities/differences in microbial communities between samples.
+- **Shared Core Taxa (Venn Diagram)**: Identify and visualize core taxa shared across different groups.
+- **Community Typing (DMM)**: Perform community typing using Dirichlet Multinomial Mixture models to infer the optimal number of community types inside the dataset.
+- **RDA Plot**: Perform redundancy analysis (RDA) to explore the association between your samples and explanatory variables.
+
+
