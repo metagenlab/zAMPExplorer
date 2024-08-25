@@ -88,6 +88,34 @@ zAMPExplorer is divided into several tabs, each dedicated to a specific type of 
 Thank you for using zAMPExplorer. We hope it helps you gain deeper insights into your microbiome data (16S amplicons). Please feel free to contribute, suggest features, or report any issues you encounter.
 
 
+## References
+
+The following R packages are integral to the functionality of zAMP Explorer. We highly recommend consulting their respective documentation:
+
+- **shiny**: [Shiny Web Application Framework for R](https://CRAN.R-project.org/package=shiny)
+- **shinydashboard**: [Create Dashboards with 'Shiny'](https://CRAN.R-project.org/package=shinydashboard)
+- **hinyWidgets**: [Custom Inputs Widgets for Shiny](https://github.com/dreamRs/shinyWidgets)
+- **webshot2**: [Taking Screenshots of Web Pages](https://CRAN.R-project.org/package=webshot2)
+- **htmlwidgets**: [HTML Widgets for R](https://github.com/ramnathv/htmlwidgets)
+- **phyloseq**: [Handling and Analysis of High-Throughput Microbial Community Data](https://rdrr.io/bioc/phyloseq/)
+- **DT**: [An R interface to the JavaScript library DataTables](https://cran.r-project.org/web/packages/DT/index.html)
+- **ggplot2**: [Create Elegant Data Visualisations Using the Grammar of Graphics](https://ggplot2.tidyverse.org/)
+- **ggpubr**: [ggpubr: ‘ggplot2’ Based Publication Ready Plots](https://rpkgs.datanovia.com/ggpubr/)
+- **plotly**: [Create Interactive Web Graphics via 'plotly.js'](https://CRAN.R-project.org/package=plotly)
+- **vegan**: [vegan: an R package for community ecologists](https://github.com/vegandevs/vegan)
+- **RColorBrewer**: [ColorBrewer Palettes](https://renenyffenegger.ch/notes/development/languages/R/packages/RColorBrewer/index)
+- **ComplexHeatmap**: [Make Complex Heatmaps](https://bioconductor.org/packages/release/bioc/html/ComplexHeatmap.html)
+- **InteractiveComplexHeatmap**: [Make Interactive Complex Heatmaps in R](https://academic.oup.com/bioinformatics/article/38/5/1460/6448211?login=false)
+- **vegan**: [Community Ecology Package](https://CRAN.R-project.org/package=vegan)
+- **microViz**: [Tools to make microbial community data more accessible](https://github.com/david-barnett/microViz)
+- **microbiome**: [Microbiome Analytics](https://microbiome.github.io/tutorials/)
+- **MicEco**: [Various functions for analysis for microbial community data](https://github.com/Russel88/MicEco)
+- **metagMisc**: [Miscellaneous functions for metabarcoding and metagenomic analysis](https://github.com/vmikk/metagMisc)
+- **mia**: [mia - Microbiome analysis](https://microbiome.github.io/mia/)
+
+For detailed information about each package, visit the provided links.
+
+
 ## Acknowledgments
 
 
