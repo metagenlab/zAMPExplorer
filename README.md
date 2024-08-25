@@ -36,9 +36,7 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
    ```
 
 
-## Using zAMPExplorer
-
-### Overview of the interface
+## Overview of the interface
 
 zAMPExplorer is divided into several tabs, each dedicated to a specific type of analysis:
 
