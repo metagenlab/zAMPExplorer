@@ -84,10 +84,6 @@ zAMPExplorer is divided into several tabs, each dedicated to a specific type of 
   - **A**: Pull the latest updates from the GitHub repository, or fork the project and make changes to your fork.
 
 
-## Contributing
-Thank you for using zAMPExplorer. We hope it helps you gain deeper insights into your microbiome data (16S amplicons). Please feel free to contribute, suggest features, or report any issues you encounter.
-
-
 ## References
 
 The following R packages are integral to the functionality of zAMP Explorer. We highly recommend consulting their respective documentation:
@@ -97,6 +93,7 @@ The following R packages are integral to the functionality of zAMP Explorer. We 
 - **hinyWidgets**: [Custom Inputs Widgets for Shiny](https://github.com/dreamRs/shinyWidgets)
 - **webshot2**: [Taking Screenshots of Web Pages](https://CRAN.R-project.org/package=webshot2)
 - **htmlwidgets**: [HTML Widgets for R](https://github.com/ramnathv/htmlwidgets)
+- **dplyr**: [A grammar of data manipulation](https://dplyr.tidyverse.org)
 - **phyloseq**: [Handling and Analysis of High-Throughput Microbial Community Data](https://rdrr.io/bioc/phyloseq/)
 - **DT**: [An R interface to the JavaScript library DataTables](https://cran.r-project.org/web/packages/DT/index.html)
 - **ggplot2**: [Create Elegant Data Visualisations Using the Grammar of Graphics](https://ggplot2.tidyverse.org/)
@@ -116,8 +113,12 @@ The following R packages are integral to the functionality of zAMP Explorer. We 
 For detailed information about each package, visit the provided links.
 
 
-## Acknowledgments
+## Contributing
+Thank you for using zAMPExplorer. We hope it helps you gain deeper insights into your microbiome data (16S amplicons). Please feel free to contribute, suggest features, or report any issues you encounter.
 
+
+## Acknowledgments
+We would like to thank the developers of the R packages and tools integrated into zAMPExplorer. Please make sure to acknowledge their contributions in any publications or projects using this tool.
 
 
 
