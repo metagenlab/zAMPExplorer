@@ -31,11 +31,11 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/metagenlab/zAMExplorer.git
+   git clone https://github.com/metagenlab/zAMPExplorer.git
    ```
 2. **Navigate to the project directory**:
    ```bash
-   cd zAMExplorer
+   cd zAMPExplorer
    ```
 3. **Install dependencies**:
    Run the provided `Dependencies.R` script to install all necessary R packages:
