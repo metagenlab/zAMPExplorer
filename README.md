@@ -37,10 +37,12 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
    ```bash
    cd zAMPExplorer
    ```
-3. **Install dependencies**:
-   Run the provided `Dependencies.R` script to install all necessary R packages:
-   ```r
-   source("Dependencies.R")
+3. **Install conda environment**:
+   Create a conda environment with the necessary r-packages:
+   ```
+   conda env create --name zAMPexplorer --file zAMPexplorer.yaml
+   conda activate zAMPexplorer
+   ./install_additional_rPackages.sh
    ```
 
 4. **Launch the app**:
