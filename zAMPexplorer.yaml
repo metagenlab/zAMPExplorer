@@ -19,7 +19,7 @@ dependencies:
   - conda-forge::r-shinywidgets
   - conda-forge::r-vegan
   - conda-forge::r-webshot2
-  - r
+  - r=4.3.1
   - r-essentials
   - r::r-dt
   - r::r-rcolorbrewer
