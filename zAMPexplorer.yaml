@@ -1,0 +1,27 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r
+  - r-essentials
+  - conda-forge::r-shinywidgets
+  - r::r-shinydashboard
+  - r::r-rcolorbrewer
+  - conda-forge::r-vegan
+  - conda-forge::r-ggpubr
+  - conda-forge::r-ggplotify
+  - plotly::plotly
+  - bioconda::bioconductor-biocinstaller
+  - bioconda::bioconductor-complexheatmap
+  - r::r-dt
+  - conda-forge::r-webshot2
+  - bioconda::bioconductor-interactivecomplexheatmap
+  - bioconductor-treesummarizedexperiment
+  - bioconda::bioconductor-mia
+  - bioconda::bioconductor-miaviz
+  - bioconda::bioconductor-phyloseq
+  - bioconda::bioconductor-microbiome
+  - bioconda::bioconductor-microbiomemarker
+  - conda-forge::r-mertools
+  - conda-forge::r-devtools
