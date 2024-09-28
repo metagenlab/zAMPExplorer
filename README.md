@@ -31,16 +31,18 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/metagenlab/zAMPExplorer.git
+   git clone git@github.com:metagenlab/zAMPExplorer.git
    ```
 2. **Navigate to the project directory**:
    ```bash
    cd zAMPExplorer
    ```
-3. **Install dependencies**:
-   Run the provided `Dependencies.R` script to install all necessary R packages:
-   ```r
-   source("Dependencies.R")
+3. **Install conda environment**:
+   Create a conda environment with the necessary r-packages:
+   ```bash
+   conda env create --name zAMPexplorer --file zAMPexplorer.yaml
+   conda activate zAMPexplorer
+   ./install_additional_rPackages.sh
    ```
 
 4. **Launch the app**:
