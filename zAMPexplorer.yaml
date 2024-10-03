@@ -12,22 +12,26 @@ dependencies:
   - bioconda::bioconductor-microbiomemarker
   - bioconda::bioconductor-phyloseq
   - bioconductor-treesummarizedexperiment
+  - conda-forge::gsl
+  - conda-forge::r-colourpicker
+  - conda-forge::r-complexupset
   - conda-forge::r-devtools
   - conda-forge::r-ggplotify
   - conda-forge::r-ggpubr
   - conda-forge::r-mertools
+  - conda-forge::r-mice
+  - conda-forge::r-plotly
+  - conda-forge::r-radiant.data
+  - conda-forge::r-reticulate
   - conda-forge::r-shinywidgets
   - conda-forge::r-vegan
   - conda-forge::r-webshot2
-  - r=4.3.1
   - r-essentials
   - r::r-dt
   - r::r-rcolorbrewer
   - r::r-shinydashboard
-  - conda-forge::r-mice
-  - conda-forge::gsl
-  - conda-forge::r-plotly
-  - conda-forge::r-reticulate
-  - conda-forge::r-complexupset
-  - conda-forge::r-colourpicker
-  - conda-forge::r-radiant.data
+  - r=4.3.1
+  - conda-forge::r-ggside
+  - conda-forge::r-upsetr
+  - conda-forge::r-ggvenn
+  - bioconda::bioconductor-microbiotaprocess
