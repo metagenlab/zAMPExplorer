@@ -314,7 +314,7 @@ shinyServer(function(input, output, session) {
   output$reads_qc_content <- renderUI({
     if (output_reads_qc_view() == "reads_distribution_samples") {
       fluidRow(
-        box(title = "Reads Distribution Across Samples", width = 12, status = "primary",
+        box(title = "Read Distribution Across Samples", width = 12, status = "primary",
             plotlyOutput("reads_distribution_plot_samples"),
             selectInput("plot_filetype_samples", "Select File Type", choices = c("png", "pdf", "svg")),
             numericInput("plot_width_samples", "Plot Width (inches)", value = 8, min = 4),
@@ -324,7 +324,7 @@ shinyServer(function(input, output, session) {
       )
     } else if (output_reads_qc_view() == "reads_distribution_groups") {
       fluidRow(
-        box(title = "Reads Distribution Across Groups", width = 12, status = "primary",
+        box(title = "Read Distribution Across Groups", width = 12, status = "primary",
             selectInput("group_column", "Select Grouping Column", choices = sample_variables(physeq())),
             plotlyOutput("reads_distribution_plot_groups"),
             # Add the box plot for reads distribution per group
@@ -379,12 +379,11 @@ shinyServer(function(input, output, session) {
   # Plot Reads Distribution Across Samples
   output$reads_distribution_plot_samples <- renderPlotly({
     req(physeq())
-    reads_per_sample <- sample_sums(physeq())
-
-    p <- ggplot(data.frame(Reads = reads_per_sample), aes(x = Reads)) +
-      geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
-      labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-      theme_minimal()
+    dat <- data.frame(sample_data(physeq()), num_reads = sample_sums(physeq())) %>% rownames_to_column("sample_names")
+    p <- ggplot(dat, aes(x = sample_names, y = num_reads)) +
+      geom_bar(stat = 'identity') +
+      labs(x='', y = 'Number of reads', colour = NULL) +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
     ggplotly(p)
   })
@@ -407,10 +406,11 @@ shinyServer(function(input, output, session) {
       paste0("reads_distribution_samples_", Sys.Date(), ".", input$plot_filetype_samples)
     },
     content = function(file) {
-      ggsave(file, plot = ggplot(data.frame(Reads = sample_sums(physeq())), aes(x = Reads)) +
-               geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
-               labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-               theme_minimal(),
+      ggsave(file, plot = ggplot(data.frame(sample_data(physeq()), num_reads = sample_sums(physeq())) %>% rownames_to_column("sample_names"), 
+                                 aes(x = sample_names, y = num_reads)) +
+               geom_bar(stat = 'identity') +
+               labs(x='', y = 'Number of reads', colour = NULL) +
+               theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)),
              device = input$plot_filetype_samples, width = input$plot_width_samples, height = input$plot_height_samples)
     }
   )
@@ -1806,13 +1806,14 @@ shinyServer(function(input, output, session) {
     cols2 <- distinct_palette(n = length(unique_vals2), add = NA)
     names(cols2) <- unique_vals2
 
-    # Prepare sample annotations
+    # Prepare sample annotations, with legend title
     sample_anno <- sampleAnnotation(
-      State1 = anno_sample_cat(input$annotationColumn1, legend_title = "anno1"),
-      col = list(State1 = cols1), border = FALSE,
-      State2 = anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = "anno2")
+      State1 = anno_sample_cat(input$annotationColumn1, legend_title = input$annotationColumn1),
+      col = list(State1 = cols1, State2 = cols2), border = FALSE,
+      State2 = anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = input$annotationColumn2),
+      annotation_label = c(input$annotationColumn1, input$annotationColumn2)
     )
-
+    
     # Generate the heatmap using comp_heatmap
     heatmap_obj <- comp_heatmap(
       psq_normalized_pruned,
@@ -1824,12 +1825,17 @@ shinyServer(function(input, output, session) {
       colors = heat_palette(palette = "Rocket", rev = TRUE),
       cluster_rows = input$clusterRows,
       cluster_columns = input$clusterColumns,
-      sample_names_show = FALSE
+      sample_names_show = TRUE
     )
 
-    # Draw the heatmap for interactive use
-    ht1 <- draw(heatmap_obj, merge_legend = TRUE)
-
+    # # Draw the heatmap for interactive use
+    # ht1 <- draw(heatmap_obj, merge_legend = TRUE)
+    # Draw the heatmap for interactive use, with annotation legends
+    ht1 <- ComplexHeatmap::draw(
+      object = heatmap_obj,
+      annotation_legend_list = attr(heatmap_obj, "AnnoLegends"), merge_legends = TRUE
+    )
+    
     # Render the interactive heatmap using InteractiveComplexHeatmap
     makeInteractiveComplexHeatmap(input, output, session, ht1,
                                   heatmap_id = "relativeAbundanceHeatmap")
