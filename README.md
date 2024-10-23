@@ -28,15 +28,15 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 - **RStudio**: Recommended for running the Shiny app
 - **zAMP**: zAMPExplorer is designed to work with output generated from the zAMP pipeline.
 
-### Installation
+## Installation
 
 # Method 1:
 
-##Install the devtools package if not already installed
+1. Install the devtools package if not already installed
 
 install.packages("devtools")
 
-##Install zAMPExplorer from GitHub
+2. Install zAMPExplorer from GitHub
 
 devtools::install_github("metagenlab/zAMPExplorer")
 
