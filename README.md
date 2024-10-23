@@ -5,7 +5,7 @@ install.packages("devtools")
 
 ##Install zAMPExplorer from GitHub
 
-devtools::install_github("yourusername/zAMPExplorer")
+devtools::install_github("metagenlab/zAMPExplorer")
 
 
 # zAMPExplorer
