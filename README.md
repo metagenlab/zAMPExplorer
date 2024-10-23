@@ -1,7 +1,10 @@
 # Installation
 ##Install the devtools package if not already installed
+
 install.packages("devtools")
+
 ##Install zAMPExplorer from GitHub
+
 devtools::install_github("yourusername/zAMPExplorer")
 
 
