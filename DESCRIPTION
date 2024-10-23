@@ -1,0 +1,55 @@
+Package: zAMPExplorer
+Type: Package
+Title: A Shiny App for Microbiota Analysis
+Version: 0.1.0
+Author: Sedreh Nassirnia
+Maintainer: Sedreh Nassirnia <Sedreh.Nassirnia@chuv.ch>
+Description: A Shiny app for microbiota analysis.
+Depends: R (>= 4.0.0)
+Imports: 
+    shiny, 
+    shinydashboard, 
+    shinyWidgets, 
+    DT, 
+    ape, 
+    mice, 
+    writexl, 
+    UpSetR, 
+    phyloseq, 
+    microViz, 
+    ggvenn, 
+    microbiome, 
+    ggplot2, 
+    cowplot, 
+    circlize, 
+    merTools, 
+    reshape2, 
+    dplyr, 
+    tidyr, 
+    vegan, 
+    gridExtra, 
+    ggpubr, 
+    mia, 
+    eulerr, 
+    miaViz, 
+    MicEco, 
+    plotly, 
+    metagMisc, 
+    reticulate, 
+    webshot2, 
+    ggplotify, 
+    ComplexUpset, 
+    phyloseq.extended, 
+    htmlwidgets, 
+    colourpicker, 
+    RColorBrewer, 
+    radiant.data, 
+    VennDiagram, 
+    ComplexHeatmap, 
+    MicrobiotaProcess, 
+    microbiomeMarker, 
+    microbiomeutilities, 
+    DirichletMultinomial, 
+    InteractiveComplexHeatmap, 
+    TreeSummarizedExperiment
+RoxygenNote: 7.3.2
