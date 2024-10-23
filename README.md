@@ -34,11 +34,11 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 1. Install the devtools package if not already installed
 
-install.packages("devtools")
+   install.packages("devtools")
 
 2. Install zAMPExplorer from GitHub
 
-devtools::install_github("metagenlab/zAMPExplorer")
+   devtools::install_github("metagenlab/zAMPExplorer")
 
 
 ### Method 2:
