@@ -62,7 +62,7 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 4. **Launch the app**:
    After installation, launch zAMPExplorer with:
    ```r
-   shiny::runApp("path_to_your_app")
+   shiny::runApp("path_to_the_app")
    ```
 
 
