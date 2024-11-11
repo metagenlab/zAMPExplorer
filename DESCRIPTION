@@ -5,8 +5,6 @@ Version: 0.1.0
 Author: Sedreh Nassirnia
 Maintainer: Sedreh Nassirnia <Sedreh.Nassirnia@chuv.ch>
 Description: A Shiny app for microbiota analysis.
-Depends:
-R (>= 4.0.0)
 Imports: 
     shiny,
     shinydashboard, 
