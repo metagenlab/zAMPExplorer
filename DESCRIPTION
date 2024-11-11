@@ -43,11 +43,12 @@ Imports:
     radiant.data, 
     VennDiagram, 
     ComplexHeatmap, 
-    MicrobiotaProcess, 
-    microbiomeMarker, 
+    MicrobiotaProcess,
     microbiomeutilities, 
     DirichletMultinomial, 
     InteractiveComplexHeatmap, 
     TreeSummarizedExperiment
+Remotes: 
+    yiluheihei/microbiomeMarker
 License: GPL-3
 RoxygenNote: 7.3.2
