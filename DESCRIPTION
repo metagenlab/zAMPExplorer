@@ -6,7 +6,7 @@ Author: Sedreh Nassirnia
 Maintainer: Sedreh Nassirnia <Sedreh.Nassirnia@chuv.ch>
 Description: A Shiny app for microbiota analysis.
 Imports: 
-    shiny, 
+    shiny,
     shinydashboard, 
     shinyWidgets, 
     DT, 
