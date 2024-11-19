@@ -8,11 +8,14 @@ Description: A Shiny web application offering an user-friendly, accessible and  
 Key features include quality control visualizations (e.g., rarefaction curves), community composition plots, and statistical analyses for alpha- and beta-diversity.
 For deeper insights, the app incorporates community typing using Dirichlet multinomial modeling (DMM) and dynamically integrates metadata for sample stratification. 
 This enables users to test microbial associations with clinical or experimental variables using redundancy analysis (RDA).
-
-Depends: R (>= 3.5.1)
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
 License: GPLv3
 Encoding: UTF-8
 LazyData: true
+biocViews:
+Depends: 
+    R (>= 3.5.0)
 biocViews:
 Imports: 
     shiny, 
