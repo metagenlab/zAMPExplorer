@@ -16,7 +16,7 @@ A typical `phyloseq` object contains the following components:
 For more information on the [phyloseq package](https://rdrr.io/bioc/phyloseq/man/phyloseq-package.html), please visit the official [phyloseq documentation](https://rdrr.io/bioc/phyloseq/man/phyloseq.html).
 
 
-zAMPExplorer enables users to perform a wide range of microbiota and statistical analyses, including compositional barplot, relative abundance heatmap, community diversity (alpha diversity), community similarity through unsupervised (NMDS/PCoA) and supervised (RDA) ordinations, and community typing (or clustering) of microbial profiles using Dirichlet Multinomial Mixtures (DMM). All of these analyses are made accessible through an intuitive graphical interface, bridging the gap between complex command-line bioinformatics processing and user-friendly data exploration.
+zAMPExplorer enables users to perform a wide range of microbiota and statistical analyses, including compositional barplot, relative abundance heatmap, community diversity (alpha diversity), community similarity through unsupervised (NMDS/PCoA) and supervised (RDA) ordinations, differential abundance testing using MaAsLin, and community typing (or clustering) of microbial profiles using Dirichlet Multinomial Mixtures (DMM). All of these analyses are made accessible through an intuitive graphical interface, bridging the gap between complex command-line bioinformatics processing and user-friendly data exploration.
 
 
 ## Prerequisites and installation
@@ -24,24 +24,13 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 ### Prerequisites
 
 - **Operating system**: Windows, macOS, or Linux
-- **R**: Version 4.0 or later
+- **R**: Version 3.5.0 or later
 - **RStudio**: Recommended for running the Shiny app
-- **zAMP**: zAMPExplorer is designed to work with output generated from the zAMP pipeline.
+- **zAMP**: zAMPExplorer is designed to work with output generated from the zAMP pipeline (phyloseq object).
 
 ## Installation
 
 ### Method 1:
-
-1. Install the devtools package if not already installed
-
-   install.packages("remotes")
-
-2. Install zAMPExplorer from GitHub
-
-   remotes::install_github("metagenlab/zAMPExplorer")
-
-
-### Method 2:
 
 1. **Clone the repository**:
    ```bash
@@ -65,6 +54,21 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
    shiny::runApp("path_to_the_app")
    ```
 
+### Method 2:
+
+1. **Install package**:
+   ```r
+   install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
+   ```
+2. **Call library**:
+   ```r
+   library(zAMPExplorer)
+   ```
+3. **Run the app**:
+   ```r
+   zAMPExplorer::zAMPExplorer_app()
+   ```
+
 
 ## Overview of the interface
 
@@ -77,6 +81,7 @@ zAMPExplorer is divided into several tabs, each dedicated to a specific type of 
 - **Alpha Diversity**: Analyze and visualize alpha diversity metrics, comparing diversity within groups.
 - **Beta Diversity**: Explore beta diversity using different distance matrices to assess similarities/differences in microbial communities between samples.
 - **Shared Core Taxa (Venn Diagram)**: Identify and visualize core taxa shared across different groups.
+- **Differential abundance testing (MAaslin2)**: Determining associations between microbial features (e.g., taxa) and metadata.
 - **Community Typing (DMM)**: Perform community typing using Dirichlet Multinomial Mixture models to infer the optimal number of community types inside the dataset.
 - **RDA Plot**: Perform redundancy analysis (RDA) to explore the association between your samples and explanatory variables.
 
