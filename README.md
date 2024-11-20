@@ -32,6 +32,21 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 ### Method 1:
 
+1. **Install package**:
+   ```r
+   install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
+   ```
+2. **Call library**:
+   ```r
+   library(zAMPExplorer)
+   ```
+3. **Run the app**:
+   ```r
+   zAMPExplorer::zAMPExplorer_app()
+   ```
+
+### Method 2:
+
 1. **Clone the repository**:
    ```bash
    git clone git@github.com:metagenlab/zAMPExplorer.git
@@ -52,21 +67,6 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
    After installation, launch zAMPExplorer with:
    ```r
    shiny::runApp("path_to_the_app")
-   ```
-
-### Method 2:
-
-1. **Install package**:
-   ```r
-   install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
-   ```
-2. **Call library**:
-   ```r
-   library(zAMPExplorer)
-   ```
-3. **Run the app**:
-   ```r
-   zAMPExplorer::zAMPExplorer_app()
    ```
 
 
