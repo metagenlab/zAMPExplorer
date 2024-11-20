@@ -74,6 +74,8 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 zAMPExplorer is divided into several tabs, each dedicated to a specific type of analysis:
 
+![Upload Data Tab](figures/1.png)
+
 - **Upload Data**: Upload your `phyloseq` object here. This object is the output of the zAMP pipeline and serves as the input for all downstream analyses in the app.
 - **Reads and Taxa Overview**: Visualize the total number of reads per sample and the estimated number of organisms in each sample at different taxonomic levels.
 - **Compositional Barplot**: Create interactive barplots to visualize the relative abundance of taxa within your samples.
