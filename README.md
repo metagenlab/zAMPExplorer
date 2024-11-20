@@ -76,15 +76,36 @@ zAMPExplorer is divided into several tabs, each dedicated to a specific type of 
 
 ![Upload Data Tab](figures/1.png)
 
-- **Upload Data**: Upload your `phyloseq` object here. This object is the output of the zAMP pipeline and serves as the input for all downstream analyses in the app.
-- **Reads and Taxa Overview**: Visualize the total number of reads per sample and the estimated number of organisms in each sample at different taxonomic levels.
+- **Check Phyloseq Components**: Upload your `phyloseq` object here. This object is the output of the zAMP pipeline and serves as the input for all downstream analyses in the app.
+
+  ![check](figures/2.png)
+  
+- **Reads QC**: Visualize the total number of reads per sample and the estimated number of organisms in each sample at different taxonomic levels.
+
+ ![Reads QC](figures/3.png)
+
+ - **Taxa Overview**: Visualize the total number of reads per sample and the estimated number of organisms in each sample at different taxonomic levels.
+
+ ![Taxa Overview](figures/4.png)
+ 
 - **Compositional Barplot**: Create interactive barplots to visualize the relative abundance of taxa within your samples.
+
+  ![Compositional Barplot](figures/5.png)
+  
 - **Heatmap**: Generate heatmaps to visualize the relative abundance of taxa across samples and sample groups.
 - **Alpha Diversity**: Analyze and visualize alpha diversity metrics, comparing diversity within groups.
+
+  ![Alpha Diversity Tab](figures/6.png)
+  
 - **Beta Diversity**: Explore beta diversity using different distance matrices to assess similarities/differences in microbial communities between samples.
-- **Shared Core Taxa (Venn Diagram)**: Identify and visualize core taxa shared across different groups.
 - **Differential abundance testing (MAaslin2)**: Determining associations between microbial features (e.g., taxa) and metadata.
+
+  ![Differential](figures/7.png)
+
 - **Community Typing (DMM)**: Perform community typing using Dirichlet Multinomial Mixture models to infer the optimal number of community types inside the dataset.
+
+  ![Community Typing (DMM)](figures/8.png)
+
 - **RDA Plot**: Perform redundancy analysis (RDA) to explore the association between your samples and explanatory variables.
 
 
