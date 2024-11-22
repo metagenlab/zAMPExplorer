@@ -2,21 +2,30 @@ Package: zAMPExplorer
 Type: Package
 Title: zAMPExplorer: A Versatile Shiny App for Microbiota Profiling in Clinical Microbiology
 Version: 0.1.0
-Authors: Sedreh Nassirnia, Violeta Castelo-Szekely, Farid Chaabane, Valentin Scherz, Trestan Pillonel, Gilbert Greub1, and Claire Bertelli
-Maintainer: Sedreh Nassirnia <Sedreh.Nassirnia@chuv.ch>
-Description: A Shiny web application offering an user-friendly, accessible and  reproducible platform for downstream analysis of 16S rRNA-based metagenomics data.
-Key features include quality control visualizations (e.g., rarefaction curves), community composition plots, and statistical analyses for alpha- and beta-diversity.
-For deeper insights, the app incorporates community typing using Dirichlet multinomial modeling (DMM) and dynamically integrates metadata for sample stratification. 
-This enables users to test microbial associations with clinical or experimental variables using redundancy analysis (RDA).
+Authors@R: 
+    c(person("Sedreh", "Nassirnia", email = "Sedreh.Nassirnia@chuv.ch", role = c("aut", "cre")),
+      person("Violeta", "Castelo-Szekely", role = "aut"),
+      person("Farid", "Chaabane", role = "aut"),
+      person("Valentin", "Scherz", role = "aut"),
+      person("Trestan", "Pillonel", role = "aut"),
+      person("Gilbert", "Greub", role = "aut"),
+      person("Claire", "Bertelli", role = "aut"))
+Description: A Shiny web application offering a user-friendly, accessible, and 
+    reproducible platform for downstream analysis of 16S rRNA-based metagenomics data.
+    Key features include quality control visualizations (e.g., rarefaction curves),
+    community composition plots, and statistical analyses for alpha- and beta-diversity.
+    For deeper insights, the app incorporates community typing using Dirichlet multinomial 
+    modeling (DMM) and dynamically integrates metadata for sample stratification. 
+    This enables users to test microbial associations with clinical or experimental 
+    variables using redundancy analysis (RDA).
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-License: GPLv3
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
-biocViews:
+biocViews: Microbiology, Metabarcoding, Visualization, StatisticalMethod
 Depends: 
     R (>= 3.5.0)
-biocViews:
 Imports: 
     shiny,
     shinydashboard,
@@ -55,8 +64,8 @@ Imports:
     ComplexHeatmap,
     MicrobiotaProcess,
     microbiomeMarker,
-    DirichletMultinomial
+    DirichletMultinomial,
     InteractiveComplexHeatmap,
-    TreeSummarizedExperiment,
+    TreeSummarizedExperiment
 Remotes: 
     yiluheihei/microbiomeMarker
