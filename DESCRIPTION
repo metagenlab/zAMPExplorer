@@ -56,7 +56,6 @@ Imports:
     MicrobiotaProcess,
     microbiomeMarker,
     DirichletMultinomial
-
     InteractiveComplexHeatmap,
     TreeSummarizedExperiment,
 Remotes: 
