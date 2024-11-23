@@ -50,7 +50,6 @@ Imports:
     gridExtra,
     Maaslin2,
     eulerr,
-    miaViz,
     MicEco,
     plotly,
     reticulate,
