@@ -59,6 +59,5 @@ Imports:
     VennDiagram,
     ComplexHeatmap,
     MicrobiotaProcess,
-    DirichletMultinomial (>= 1.44),
     InteractiveComplexHeatmap,
     TreeSummarizedExperiment
