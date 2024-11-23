@@ -63,9 +63,6 @@ Imports:
     VennDiagram,
     ComplexHeatmap,
     MicrobiotaProcess,
-    microbiomeMarker,
     DirichletMultinomial,
     InteractiveComplexHeatmap,
     TreeSummarizedExperiment
-Remotes: 
-    yiluheihei/microbiomeMarker
