@@ -15,7 +15,7 @@ zAMPExplorer <- function() {
   }
   
   # Install critical Bioconductor packages
-  critical_packages <- c("phyloseq", "microbiome", "Biostrings", "Maaslin2", "microbiomeMarker", "DirichletMultinomial",
+  critical_packages <- c("phyloseq", "microbiome", "Biostrings", "DirichletMultinomial",
 "microbiome", "ComplexHeatmap", "MicrobiotaProcess", "microbiomeutilities", "DirichletMultinomial", "InteractiveComplexHeatmap",
  "TreeSummarizedExperiment")
   check_and_install(critical_packages)
