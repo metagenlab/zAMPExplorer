@@ -48,7 +48,6 @@ Imports:
     tidyr,
     vegan,
     gridExtra,
-    Maaslin2,
     eulerr,
     plotly,
     reticulate,
@@ -60,7 +59,6 @@ Imports:
     VennDiagram,
     ComplexHeatmap,
     MicrobiotaProcess,
-    microbiomeMarker,
     DirichletMultinomial (>= 1.44),
     InteractiveComplexHeatmap,
     TreeSummarizedExperiment
