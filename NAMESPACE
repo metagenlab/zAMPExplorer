@@ -1,0 +1,21 @@
+# Export the main function
+export(zAMPExplorer)
+
+# Import specific functions from the listed packages
+importFrom(DT, datatable)
+importFrom(ape, read.tree)
+importFrom(dplyr, filter, mutate, select)
+importFrom(fs, path, file_exists)
+importFrom(ggplot2, ggplot, geom_point, theme_minimal)
+importFrom(microViz, comp_barplot, ord_plot)
+importFrom(microbiome, transform)
+importFrom(phyloseq, phyloseq, distance, otu_table, sample_data)
+importFrom(shinyFiles, shinyFilesButton)
+importFrom(shinyWidgets, pickerInput)
+importFrom(shinydashboard, dashboardPage, dashboardHeader, dashboardSidebar, dashboardBody)
+importFrom(tidyr, pivot_longer, pivot_wider)
+importFrom(vegan, capscale, adonis, vegdist)
+importFrom(writexl, write_xlsx)
+
+# Import all functions from shiny
+import(shiny)
