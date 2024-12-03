@@ -40,7 +40,12 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    vegan
+    vegan,
+    plotly,
+    webshot2,
+    ggplotify,
+    htmlwidgets,
+    InteractiveComplexHeatmap
 Suggests:
     ggvenn,
     cowplot,
@@ -48,15 +53,10 @@ Suggests:
     reshape2,
     gridExtra,
     eulerr,
-    plotly,
     reticulate,
-    webshot2,
-    ggplotify,
-    htmlwidgets,
     colourpicker,
     RColorBrewer,
     VennDiagram,
     ComplexHeatmap,
     MicrobiotaProcess,
-    InteractiveComplexHeatmap,
     TreeSummarizedExperiment
