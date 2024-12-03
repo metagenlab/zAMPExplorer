@@ -139,7 +139,7 @@ The following R packages are integral to the functionality of zAMP Explorer. We 
 - **htmlwidgets**: [HTML Widgets for R](https://github.com/ramnathv/htmlwidgets)
 - **dplyr**: [A grammar of data manipulation](https://dplyr.tidyverse.org)
 - **phyloseq**: [Handling and Analysis of High-Throughput Microbial Community Data](https://rdrr.io/bioc/phyloseq/)
-- **DT**: [An R interface to the JavaScript library DataTables](https://cran.r-project.org/web/packages/DT/index.html)
+- **DT**: [An R interface to the JavaScript library DataTables](https://cran.r-project.org/web/packages/DT/)
 - **ggplot2**: [Create Elegant Data Visualisations Using the Grammar of Graphics](https://ggplot2.tidyverse.org/)
 - **ggpubr**: [ggpubr: ‘ggplot2’ Based Publication Ready Plots](https://rpkgs.datanovia.com/ggpubr/)
 - **plotly**: [Create Interactive Web Graphics via 'plotly.js'](https://CRAN.R-project.org/package=plotly)
