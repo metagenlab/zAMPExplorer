@@ -1,6 +1,6 @@
 Package: zAMPExplorer
 Type: Package
-Title: zAMPExplorer: A Versatile Shiny App for Microbiota Profiling in Clinical Microbiology
+Title: A Versatile Shiny App for Microbiota Profiling in Clinical Microbiology
 Version: 0.1.0
 Authors@R: 
     c(person("Sedreh", "Nassirnia", email = "Sedreh.Nassirnia@chuv.ch", role = c("aut", "cre")),
