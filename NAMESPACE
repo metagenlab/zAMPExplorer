@@ -19,3 +19,8 @@ importFrom(writexl, write_xlsx)
 
 # Import all functions from shiny
 import(shiny)
+import(shinydashboard)
+import(plotly)
+import(InteractiveComplexHeatmap)
+import(DT)
+import(shinyFiles)
