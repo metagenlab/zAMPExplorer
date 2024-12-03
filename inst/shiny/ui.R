@@ -14,7 +14,7 @@ shinyUI(
       )
     ),
     shinydashboard::dashboardSidebar(
-      sidebarMenu(
+      shinydashboard::sidebarMenu(
         menuItem("Upload Data", tabName = "upload", icon = icon("upload")),
         menuItem("Phyloseq components", tabName = "phyloseqcomponents", icon = icon("project-diagram")),
         menuItem("Reads QC", tabName = "readsQC", icon = icon("chart-bar")),
