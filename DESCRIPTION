@@ -33,6 +33,7 @@ Imports:
     fs,
     DT,
     ape,
+    microViz,
     writexl,
     phyloseq,
     microbiome,
@@ -41,7 +42,6 @@ Imports:
     tidyr,
     vegan
 Suggests:
-    microViz,
     ggvenn,
     cowplot,
     circlize,
