@@ -30,6 +30,18 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 ## Installation
 
+Before running the `zAMPExplorer` app, please ensure that the `microViz` package is installed. This package is required for some advanced visualization features.
+
+To install `microViz`, use the following command in R:
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("phyloseq", "microbiome", "ComplexHeatmap"), update = FALSE)
+
+install.packages(
+  "microViz",
+  repos = c(davidbarnett = "https://david-barnett.r-universe.dev", getOption("repos"))
+)
+
 ### Method 1:
 
 1. **Install package**:
