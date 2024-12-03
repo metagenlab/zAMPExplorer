@@ -34,13 +34,13 @@ Imports:
     ape,
     writexl,
     phyloseq,
-    microViz,
     microbiome,
     ggplot2,
     dplyr,
     tidyr,
     vegan
 Suggests:
+    microViz,
     ggvenn,
     cowplot,
     circlize,
