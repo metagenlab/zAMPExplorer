@@ -30,7 +30,6 @@ Imports:
     dichromat,
     ComplexHeatmap,
     config,
-    DirichletMultinomial,
     dplyr,
     DT,
     forcats,
