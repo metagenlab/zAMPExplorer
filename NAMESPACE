@@ -23,6 +23,7 @@ importFrom(InteractiveComplexHeatmap, InteractiveComplexHeatmapOutput, renderInt
 # Import all functions from shiny
 import(shiny)
 import(shinydashboard)
+import(phyloseq)
 import(plotly)
 import(InteractiveComplexHeatmap)
 import(DT)
