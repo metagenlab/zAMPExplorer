@@ -36,7 +36,7 @@ shinyServer(function(input, output, session) {
       showNotification("Phyloseq object successfully uploaded and processed.", type = "message")
 
     # Update downstream components such as selectInputs
-    updateSelectInput(session, "phylum", choices = unique(tax_table(physeq())[, "Phylum"]))
+    updateSelectInput(session, "phylum", choices = unique(phyloseq::tax_table(physeq())[, "Phylum"]))
     updateSelectInput(session,"label_tips", "Label Tips By (taxonomy):", choices = rank_names(physeq()))
     updateSelectInput(session,"color_by", "Choose Color By (metadata):", choices = sample_variables(physeq()))
     updateSelectInput(session,"shape_by", "Choose Shape By (taxonomy):", choices = rank_names(physeq()))
@@ -157,7 +157,7 @@ shinyServer(function(input, output, session) {
     otu_table <- as.data.frame(otu_table(physeq()))
 
     # Extract the taxonomy table
-    taxonomy_table <- as.data.frame(tax_table(physeq()))
+    taxonomy_table <- as.data.frame(phyloseq::tax_table(physeq()))
 
     # Ensure that the OTU table and taxonomy table align by rows (taxa/ASVs)
     if (nrow(taxonomy_table) != nrow(otu_table)) {
@@ -204,10 +204,10 @@ shinyServer(function(input, output, session) {
     req(output_view() == "summary_statistics")
     num_samples <- nsamples(physeq())
     num_asvs <- ntaxa(physeq())
-    num_phylum <- length(unique(tax_table(physeq())[,"Phylum"]))
-    num_family <- length(unique(tax_table(physeq())[,"Family"]))
-    num_genus <- length(unique(tax_table(physeq())[,"Genus"]))
-    num_species <- length(unique(tax_table(physeq())[,"Species"]))
+    num_phylum <- length(unique(phyloseq::tax_table(physeq())[,"Phylum"]))
+    num_family <- length(unique(phyloseq::tax_table(physeq())[,"Family"]))
+    num_genus <- length(unique(phyloseq::tax_table(physeq())[,"Genus"]))
+    num_species <- length(unique(phyloseq::tax_table(physeq())[,"Species"]))
 
     summary_df <- data.frame(
       "Metric" = c("Number of Samples", "Number of ASVs", "Number of Phyla", "Number of Families", "Number of Genera", "Number of Species"),
@@ -736,7 +736,7 @@ shinyServer(function(input, output, session) {
 
     absolute_abundance <- rowSums(otu_table(physeq_agg))
 
-    prevalence_table <- data.frame(Species = tax_table(physeq_agg)[, taxa_level], Prevalence = prevalence_df, Abundance = absolute_abundance)
+    prevalence_table <- data.frame(Species = phyloseq::tax_table(physeq_agg)[, taxa_level], Prevalence = prevalence_df, Abundance = absolute_abundance)
     prevalence_table_samples(prevalence_table)  # Store the table in reactive value
 
     # Render the table without row names
@@ -784,7 +784,7 @@ shinyServer(function(input, output, session) {
     colnames(prevalence_df) <- levels(groups)
 
     # Create the prevalence table
-    prevalence_table <- data.frame(Species = tax_table(physeq_agg)[, taxa_level], prevalence_df)
+    prevalence_table <- data.frame(Species = phyloseq::tax_table(physeq_agg)[, taxa_level], prevalence_df)
     prevalence_table_reactive(prevalence_table)  # Store the table in reactive value
 
     # Render the table without row names
@@ -883,7 +883,7 @@ shinyServer(function(input, output, session) {
     abundance_df <- rowSums(otu_table(physeq_agg))
 
     # Extract Genus and Phylum from tax_table
-    taxa_df <- as.data.frame(tax_table(physeq_agg))
+    taxa_df <- as.data.frame(phyloseq::tax_table(physeq_agg))
 
     # Create a data frame for plotting
     plot_df <- data.frame(
@@ -1082,7 +1082,7 @@ shinyServer(function(input, output, session) {
 
     # Aggregate physeq data at the selected taxonomy level
     physeq_agg <- microbiome::aggregate_taxa(current_physeq(), input$taxonomy_level)
-    tax_table_data <- tax_table(physeq_agg)
+    tax_table_data <- phyloseq::tax_table(physeq_agg)
 
     # Get core microbiome based on thresholds
     physeq_core <- core(physeq_agg, detection = input$detection_threshold_venn, prevalence = input$prevalence_threshold_venn)
@@ -2344,7 +2344,7 @@ shinyServer(function(input, output, session) {
     colnames(d) <- c("ASV", "cluster", "value")
 
     # Get the tax_table from the phyloseq object
-    tax_df <- as.data.frame(tax_table(physeq))
+    tax_df <- as.data.frame(phyloseq::tax_table(physeq))
 
     # Create a new column combining Genus, Species, and ASV
     d$Taxa <- with(tax_df[d$ASV, ], paste0(Genus, "_", Species, " (", d$ASV, ")"))
@@ -2429,7 +2429,7 @@ shinyServer(function(input, output, session) {
       metadata_filtered$DMM_Cluster <- factor(sample_assignments)
 
       # Re-create phyloseq object with filtered metadata
-      updated_pseq <- phyloseq(otu_table(current_physeq()), tax_table(current_physeq()), sample_data(metadata_filtered), phy_tree(current_physeq()))
+      updated_pseq <- phyloseq(otu_table(current_physeq()), phyloseq::tax_table(current_physeq()), sample_data(metadata_filtered), phy_tree(current_physeq()))
 
       # Render Driver Plots
       output$driverPlotsUI <- renderUI({
@@ -2590,7 +2590,7 @@ shinyServer(function(input, output, session) {
     reactive_pseq(pseq)
     
     # Update taxRankRDA choices based on the available taxonomic ranks
-    if (!is.null(tax_table(reactive_pseq()))) {
+    if (!is.null(phyloseq::tax_table(reactive_pseq()))) {
       updateSelectInput(session, "taxRankRDA", choices = c("ASV", rank_names(reactive_pseq())))
     } else {
       updateSelectInput(session, "taxRankRDA", choices = "ASV")
