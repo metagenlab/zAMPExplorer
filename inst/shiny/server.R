@@ -146,7 +146,7 @@ shinyServer(function(input, output, session) {
 
 
   # Render Metadata Structure when button is clicked
-  output$metadata_structure <- DT::renderDataTable({
+  output$metadata_structure <- shiny::renderDataTable({
     req(output_view() == "metadata")
     as.data.frame(sample_data(physeq()))
   }, options = list(pageLength = 10, scrollX = TRUE))
@@ -174,7 +174,7 @@ shinyServer(function(input, output, session) {
   })
 
   # Render Combined Abundance/Taxonomy Table
-  output$combined_table <- DT::renderDataTable({
+  output$combined_table <- shiny::renderDataTable({
     req(output_view() == "combined_table")
     DT::datatable(combined_table(), options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
@@ -200,7 +200,7 @@ shinyServer(function(input, output, session) {
 
 
   # Render Summary Statistics
-  output$summary_statistics <- DT::renderDataTable({
+  output$summary_statistics <- shiny::renderDataTable({
     req(output_view() == "summary_statistics")
     num_samples <- nsamples(physeq())
     num_asvs <- ntaxa(physeq())
@@ -419,7 +419,7 @@ shinyServer(function(input, output, session) {
   })
   
   # Reactive data table for Number of Reads per Sample
-  output$number_of_reads_table <- DT::renderDataTable({
+  output$number_of_reads_table <- shiny::renderDataTable({
     req(current_physeq())  # Use current_physeq() instead of physeq()
     reads_df <- data.frame(Sample = sample_names(current_physeq()), Reads = sample_sums(current_physeq()))
     DT::datatable(reads_df, options = list(pageLength = 10, scrollX = TRUE))
@@ -443,7 +443,7 @@ shinyServer(function(input, output, session) {
     filtered_pseq(filtered)  # Now, current_physeq() will reference this filtered object
     
     # Display filtered samples in a data table
-    output$filtered_samples_table <- DT::renderDataTable({
+    output$filtered_samples_table <- shiny::renderDataTable({
       filtered_samples_df <- data.frame(Sample = sample_names(current_physeq()), Reads = sample_sums(current_physeq()))
       DT::datatable(filtered_samples_df, options = list(pageLength = 10, scrollX = TRUE))
     })
@@ -724,7 +724,7 @@ shinyServer(function(input, output, session) {
   prevalence_table_samples <- reactiveVal(NULL)
 
   # Calculate taxa prevalence across samples
-  output$taxa_prevalence_table_samples <- DT::renderDataTable({
+  output$taxa_prevalence_table_samples <- shiny::renderDataTable({
     req(input$taxa_level_samples, current_physeq())
     taxa_level <- input$taxa_level_samples
 
@@ -761,7 +761,7 @@ shinyServer(function(input, output, session) {
 
 
   # Render the taxa prevalence table across groups
-  output$taxa_prevalence_table_groups <- DT::renderDataTable({
+  output$taxa_prevalence_table_groups <- shiny::renderDataTable({
     req(input$taxa_level_groups, input$group_column, current_physeq())
     taxa_level <- input$taxa_level_groups
     group_column <- input$group_column
@@ -2291,7 +2291,7 @@ shinyServer(function(input, output, session) {
           footer = modalButton("Close")
         ))
       } else {
-        output$maaslin2_results <- DT::renderDataTable({
+        output$maaslin2_results <- shiny::renderDataTable({
           DT::datatable(significant_results, options = list(pageLength = 10, scrollX = TRUE))
         })
       }
@@ -2720,18 +2720,18 @@ shinyServer(function(input, output, session) {
       anova_axes <- as.data.frame(anova(CAP_distance, by = "axis", perm.max = 500))
       
       # Render summary inertia table
-      output$inertiaTable <- DT::renderDataTable({
+      output$inertiaTable <- shiny::renderDataTable({
         DT::datatable(inertia_table, options = list(pageLength = 5), rownames = FALSE) })
       
       # Render other tables
-      output$eigenTable <- DT::renderDataTable({ DT::datatable(eigenvalues) })
-      output$r2Table <- DT::renderDataTable({ DT::datatable(data.frame(Adjusted_R2 = adjusted_r2)) })
-      output$coeffTable <- DT::renderDataTable({ DT::datatable(regression_coefficients) })
-      output$siteScoresTable <- DT::renderDataTable({ DT::datatable(site_scores) })
-      output$speciesScoresTable <- DT::renderDataTable({ DT::datatable(species_scores) })
-      output$anovaOverallTable <- DT::renderDataTable({ DT::datatable(anova_overall) })
-      output$anovaTermsTable <- DT::renderDataTable({ DT::datatable(anova_terms) })
-      output$anovaAxesTable <- DT::renderDataTable({ DT::datatable(anova_axes) })
+      output$eigenTable <- shiny::renderDataTable({ DT::datatable(eigenvalues) })
+      output$r2Table <- shiny::renderDataTable({ DT::datatable(data.frame(Adjusted_R2 = adjusted_r2)) })
+      output$coeffTable <- shiny::renderDataTable({ DT::datatable(regression_coefficients) })
+      output$siteScoresTable <- shiny::renderDataTable({ DT::datatable(site_scores) })
+      output$speciesScoresTable <- shiny::renderDataTable({ DT::datatable(species_scores) })
+      output$anovaOverallTable <- shiny::renderDataTable({ DT::datatable(anova_overall) })
+      output$anovaTermsTable <- shiny::renderDataTable({ DT::datatable(anova_terms) })
+      output$anovaAxesTable <- shiny::renderDataTable({ DT::datatable(anova_axes) })
       
       # Download Handlers
       
