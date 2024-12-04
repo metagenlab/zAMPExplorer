@@ -22,7 +22,6 @@ library(ggplot2)
 library(RColorBrewer)
 library(MicrobiotaProcess)
 library(ggvenn)
-library(DirichletMultinomial)
 library(reshape2)
 library(vegan)
 
