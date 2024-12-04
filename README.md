@@ -32,17 +32,8 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 ### Method 1: Using R-universe
 
-1. **Install package from R-universe**:
    ```r
    install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
-   ```
-2. **Call library**:
-   ```r
-   library(zAMPExplorer)
-   ```
-3. **Run the app**:
-   ```r
-   zAMPExplorer::zAMPExplorer_app()
    ```
    
 ### Method 2: Install from Source (GitHub)
