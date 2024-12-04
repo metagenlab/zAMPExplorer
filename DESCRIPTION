@@ -45,6 +45,7 @@ Imports:
     webshot2,
     ggplotify,
     htmlwidgets,
+    MicrobiotaProcess,
     InteractiveComplexHeatmap
 Suggests:
     ggvenn,
@@ -58,5 +59,4 @@ Suggests:
     RColorBrewer,
     VennDiagram,
     ComplexHeatmap,
-    MicrobiotaProcess,
     TreeSummarizedExperiment
