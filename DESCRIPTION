@@ -41,7 +41,6 @@ Imports:
     grid,
     htmlwidgets,
     InteractiveComplexHeatmap,
-    Maaslin2,
     microbiome,
     MicrobiotaProcess,
     microViz,
