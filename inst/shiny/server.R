@@ -9,8 +9,8 @@ shinyServer(function(input, output, session) {
     pseq <- readRDS(input$physeqFile$datapath)
 
     # Preprocess the phyloseq object
-    pseq <- prune_samples(sample_sums(pseq) > 0, pseq)
-    pseq <- prune_taxa(taxa_sums(pseq) > 0, pseq)
+    pseq <- phyloseq::prune_samples(sample_sums(pseq) > 0, pseq)
+    pseq <- phyloseq::prune_taxa(taxa_sums(pseq) > 0, pseq)
 
     # Drop existing diversity metrics from sample data
     drop <- c("Observed", "Chao1", "se.chao1", "ACE", "se.ACE", "Shannon", "Simpson", "InvSimpson", "Fisher", "Observed_min_1")
@@ -431,12 +431,12 @@ shinyServer(function(input, output, session) {
     
     # Apply filtering on the phyloseq object
     filtered <- physeq() %>%
-      prune_samples(sample_sums(.) >= input$reads_threshold, .) %>%
-      prune_taxa(taxa_sums(.) > 0, .)
+      phyloseq::prune_samples(sample_sums(.) >= input$reads_threshold, .) %>%
+      phyloseq::prune_taxa(taxa_sums(.) > 0, .)
     
     if (!is.null(input$sample_name_filter) && length(input$sample_name_filter) > 0) {
-      filtered <- prune_samples(!sample_names(filtered) %in% input$sample_name_filter, filtered)
-      filtered <- prune_taxa(taxa_sums(filtered) > 0, filtered)
+      filtered <- phyloseq::prune_samples(!sample_names(filtered) %in% input$sample_name_filter, filtered)
+      filtered <- phyloseq::prune_taxa(taxa_sums(filtered) > 0, filtered)
     }
     
     # Update the reactive variable to hold the filtered phyloseq object
@@ -502,7 +502,7 @@ shinyServer(function(input, output, session) {
     )
 
     # Filter samples with sufficient reads
-    filtered_physeq <- prune_samples(sample_sums(current_physeq()) >= 100, current_physeq())  # Keep samples with at least 100 reads
+    filtered_physeq <- phyloseq::prune_samples(sample_sums(current_physeq()) >= 100, current_physeq())  # Keep samples with at least 100 reads
 
     # Check if filtering removed all samples
     if (nsamples(filtered_physeq) == 0) {
@@ -1390,14 +1390,14 @@ shinyServer(function(input, output, session) {
 
     # Select top taxa
     top_taxa <- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:input$topTaxa]
-    psq_normalized_pruned <- prune_taxa(top_taxa, pseq)
+    psq_normalized_pruned <- phyloseq::prune_taxa(top_taxa, pseq)
 
     # Define annotation colors dynamically based on the number of unique values
-    unique_vals1 <- unique(sample_data(psq_normalized_pruned)[[input$annotationColumn1]])
+    unique_vals1 <- unique(sample_data(psq_normalized_ed)[[input$annotationColumn1]])
     cols1 <- distinct_palette(n = length(unique_vals1), add = NA)
     names(cols1) <- unique_vals1
 
-    unique_vals2 <- unique(sample_data(psq_normalized_pruned)[[input$annotationColumn2]])
+    unique_vals2 <- unique(sample_data(psq_normalized_ed)[[input$annotationColumn2]])
     cols2 <- distinct_palette(n = length(unique_vals2), add = NA)
     names(cols2) <- unique_vals2
     
@@ -1413,7 +1413,7 @@ shinyServer(function(input, output, session) {
 
     # Generate the heatmap using comp_heatmap
     heatmap_obj <- comp_heatmap(
-      psq_normalized_pruned,
+      psq_normalized_ed,
       taxa = top_taxa,
       tax_anno = taxAnnotation(Prev. = anno_tax_prev(bar_width = 0.3, size = grid::unit(1, "cm"))),
       sample_anno = sample_anno,
@@ -2379,7 +2379,7 @@ shinyServer(function(input, output, session) {
     # Data Transformation and Filtering
     pseq.comp <- microbiome::transform(current_physeq(), "compositional")
     taxa <- core_members(pseq.comp, detection = input$detectionThreshold / 100, prevalence = input$prevalenceThreshold / 100)
-    pseq <- prune_taxa(taxa, current_physeq())
+    pseq <- phyloseq::prune_taxa(taxa, current_physeq())
 
     # Aggregate at selected taxonomic rank
     if (input$taxRankDMM %in% c("Genus", "Species")) {
