@@ -2534,7 +2534,8 @@ app_server <- function(input, output, session) {
 
     } else {
       # Handle cases where no valid samples are found
-      output$modelFitPlot <- renderPlot({ plot.new(); text(0.5, 0.5, "No valid samples with non-zero counts.") })
+      output$modelFitPlot <- renderUI({
+        tags$p("No valid samples with non-zero counts.", style = "color: red; text-align: center; font-size: 18px;")})
       output$mixtureParams <- renderPrint({"No valid samples with non-zero counts."})
       output$sampleAssignments <- renderDT({
         DT::datatable(data.frame(Sample = character(0), Cluster = character(0)), options = list(pageLength = 10, autoWidth = TRUE))
