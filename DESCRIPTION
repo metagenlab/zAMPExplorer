@@ -42,7 +42,6 @@ Imports:
     Maaslin2,
     microbiome,
     MicrobiotaProcess,
-    microViz,
     phyloseq,
     pkgload,
     plotly,
