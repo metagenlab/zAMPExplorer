@@ -10,22 +10,6 @@
 
 
 
-library(shinydashboard)
-library(plotly)
-library(DT)
-library(InteractiveComplexHeatmap)
-library(shinyFiles)
-library(phyloseq)
-library(microViz)
-library(microbiome)
-library(ggplot2)
-library(Maaslin2)
-library(RColorBrewer)
-library(MicrobiotaProcess)
-library(ggvenn)
-library(DirichletMultinomial)
-library(reshape2)
-library(vegan)
 
 app_ui <- function(request) {
   shinydashboard::dashboardPage(
