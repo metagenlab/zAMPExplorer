@@ -28,6 +28,11 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 - **RStudio**: Recommended for running the Shiny app
 - **zAMP**: zAMPExplorer is designed to work with output generated from the zAMP pipeline (phyloseq object).
 - **microViz**: microViz is a requirement for the functionality of zAMPExplorer. Please install it before running zAMPExplorer.
+  
+```r
+install.packages("microViz", repos = c(davidbarnett = "https://david-barnett.r-universe.dev", getOption("repos")))
+ ```
+
 
 ## Installation
 
