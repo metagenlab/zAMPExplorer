@@ -58,7 +58,7 @@ Imports:
     vegan,
     webshot,
     writexl
-biocViews: microbiology, metabarcoding, visualization, statisticalMethod, shinyapp
+biocViews: Shinyapp, Metabarcoding, Statistical Method, Visualization, Microbiology
 Config/ci-settings: lint_free: true
 Config/ci-tools: testthat
 Encoding: UTF-8
