@@ -52,6 +52,7 @@ Imports:
     vegan,
     writexl,
     fs,
+    scales,
     RColorBrewer,
     plotly,
     InteractiveComplexHeatmap
@@ -60,7 +61,6 @@ Suggests:
     microViz,
     htmlwidgets,
     webshot,
-    scales,
     ggside,
     ComplexHeatmap,
     grid,
