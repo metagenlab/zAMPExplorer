@@ -2703,9 +2703,9 @@ app_server <- function(input, output, session) {
 
 
       # Extract species and site scores
-      species_scores <- scores(CAP_distance, display = "species")
-      site_scores <- scores(CAP_distance, display = "sites")
-      env_vectors <- scores(CAP_distance, display = "bp")
+      species_scores <- vegan::scores(CAP_distance, display = "species")
+      site_scores <- vegan::scores(CAP_distance, display = "sites")
+      env_vectors <- vegan::scores(CAP_distance, display = "bp")
 
       # Convert scores to data frames
       species_df <- as.data.frame(species_scores)
