@@ -29,6 +29,7 @@ Imports:
     DirichletMultinomial,
     dplyr,
     DT,
+    microViz,
     forcats,
     reshape2,
     ggplot2,
@@ -67,8 +68,7 @@ Suggests:
     testthat (>= 3.0.0)
 Remotes: 
     david-barnett/microViz
-biocViews: Shinyapp, StatisticalMethod, Metabarcoding, Visualization,
-    Microbiology
+biocViews: Shinyapp, StatisticalMethod, Metabarcoding, Visualization, Microbiology
 Config/ci-settings: lint_free: true
 Config/ci-tools: testthat
 Config/testthat/edition: 3
