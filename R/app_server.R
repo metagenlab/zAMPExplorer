@@ -431,7 +431,7 @@ app_server <- function(input, output, session) {
       ggplot2::geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
       labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
       theme_minimal()
-    ggplotly(p)
+    plotly::ggplotly(p)
   })
 
   # Download handler for Reads Distribution Across Samples plot
@@ -468,8 +468,8 @@ app_server <- function(input, output, session) {
     )
 
     p <- ggplot2::ggplot(reads_df, aes(x = Group, y = Reads, fill = Group)) +
-      geom_boxplot(alpha = 0.7, outlier.color = "red") +
-      geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)),
+      ggplot2::geom_boxplot(alpha = 0.7, outlier.color = "red") +
+      ggplot2::geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)),
                   color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
       labs(
         title = "Reads Distribution per Sample Group",
@@ -482,7 +482,7 @@ app_server <- function(input, output, session) {
         plot.margin = margin(20, 20, 20, 20)  # Add margins around the plot
       )
 
-    ggplotly(p, tooltip = "text")
+    plotly::ggplotly(p, tooltip = "text")
   })
 
 
@@ -497,8 +497,8 @@ app_server <- function(input, output, session) {
       reads_df <- data.frame(Sample = sample_names(physeq()), Group = phyloseq::sample_data(physeq())[[input$group_column]], Reads = sample_sums(physeq()))
 
       p <- ggplot2::ggplot(reads_df, aes(x = Group, y = Reads, fill = Group)) +
-        geom_boxplot(alpha = 0.7, outlier.color = "red") +
-        geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)), color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
+        ggplot2::geom_boxplot(alpha = 0.7, outlier.color = "red") +
+        ggplot2::geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)), color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
         labs(title = "Reads Distribution per Sample Group", x = "Group", y = "Number of Reads") +
         theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -573,7 +573,7 @@ app_server <- function(input, output, session) {
       labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
       theme_minimal() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-    ggplotly(p)
+    plotly::ggplotly(p)
   })
 
   # Download handler for Reads per Sample plot using `current_physeq()`
@@ -648,7 +648,7 @@ app_server <- function(input, output, session) {
       shadow = FALSE,
       indexNames = c("Observe", "Chao1", "ACE")
     ) +
-      scale_color_manual(values = colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(20))+
+      ggplot2::scale_color_manual(values = colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(20))+
       ggplot2::theme_bw() +
       theme(
         axis.text = element_text(size = 8),
@@ -662,7 +662,7 @@ app_server <- function(input, output, session) {
 
   # Render the rarefaction plot using Plotly for interactivity
   output$rarefaction_curves_plot <- renderPlotly({
-    ggplotly(rarefaction_plot())  # Convert the ggplot object to a Plotly object
+    plotly::ggplotly(rarefaction_plot())  # Convert the ggplot object to a Plotly object
   })
 
   # Download handler for the rarefaction plot
@@ -1015,7 +1015,7 @@ app_server <- function(input, output, session) {
 
   # Render the plot
   output$prevalence_abundance_plot <- renderPlotly({
-    ggplotly(prevalence_abundance_plot())  # Convert the ggplot object to an interactive plotly object
+    plotly::ggplotly(prevalence_abundance_plot())  # Convert the ggplot object to an interactive plotly object
   })
 
   # Download handler for Prevalence vs Abundance Plot
@@ -1429,7 +1429,7 @@ app_server <- function(input, output, session) {
       coord_flip() +
       theme(legend.text = element_text(family = "mono"))
 
-    ggplotly(p)
+    plotly::ggplotly(p)
   })
 
   #render the plot UI
@@ -1503,19 +1503,19 @@ app_server <- function(input, output, session) {
 
     # Define annotation colors dynamically based on the number of unique values
     unique_vals1 <- unique(phyloseq::sample_data(psq_normalized_pruned)[[input$annotationColumn1]])
-    cols1 <- distinct_palette(n = length(unique_vals1), add = NA)
+    cols1 <- microViz::distinct_palette(n = length(unique_vals1), add = NA)
     names(cols1) <- unique_vals1
 
     unique_vals2 <- unique(phyloseq::sample_data(psq_normalized_pruned)[[input$annotationColumn2]])
-    cols2 <- distinct_palette(n = length(unique_vals2), add = NA)
+    cols2 <- microViz::distinct_palette(n = length(unique_vals2), add = NA)
     names(cols2) <- unique_vals2
 
 
     # Prepare sample annotations, with legend title
-    sample_anno <- sampleAnnotation(
-      State1 = anno_sample_cat(input$annotationColumn1, legend_title = input$annotationColumn1),
+    sample_anno <- microViz::sampleAnnotation(
+      State1 = microViz::anno_sample_cat(input$annotationColumn1, legend_title = input$annotationColumn1),
       col = list(State1 = cols1, State2 = cols2), border = FALSE,
-      State2 = anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = input$annotationColumn2),
+      State2 = microViz::anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = input$annotationColumn2),
       annotation_label = c(input$annotationColumn1, input$annotationColumn2)
     )
 
@@ -1634,9 +1634,9 @@ app_server <- function(input, output, session) {
     for (metric in input$alphaMetric) {
       if (metric %in% colnames(meta)) {  # Check if metric exists in meta
         p <- ggplot2::ggplot(meta, ggplot2::aes_string(x = input$alphaGroupingColumn, y = metric, color = input$alphaGroupingColumn)) +
-          geom_boxplot(outlier.shape = NA, width = 0.4, alpha = 0.75) +
-          geom_jitter(height = 0, width = 0.2, alpha = 0.5, size = 2) +
-          scale_color_manual(values = custom_colors) +
+          ggplot2::geom_boxplot(outlier.shape = NA, width = 0.4, alpha = 0.75) +
+          ggplot2::geom_jitter(height = 0, width = 0.2, alpha = 0.5, size = 2) +
+          ggplot2::scale_color_manual(values = custom_colors) +
           theme_minimal(base_size = 15) +
           labs(y = metric, x = "Groups") +
           theme(
@@ -1649,7 +1649,7 @@ app_server <- function(input, output, session) {
 
         # Store ggplot and plotly versions
         ggplot_lst[[metric]] <- p
-        plotly_lst[[metric]] <- ggplotly(p)
+        plotly_lst[[metric]] <- plotly::ggplotly(p)
       }
     }
 
