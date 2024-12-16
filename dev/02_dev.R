@@ -27,6 +27,7 @@ usethis::use_package("phyloseq")
 usethis::use_package("writexl")
 usethis::use_package("shinyFiles")
 usethis::use_package("magrittr")
+usethis::use_package("ggplot2")
 utils::globalVariables(c(".", "hue", "shade", "padHue", "nChrHue"))
 
 ## Add modules ----
@@ -95,6 +96,6 @@ usethis::use_jenkins()
 # GitLab CI
 usethis::use_gitlab_ci()
 
-# You're now set! ----
+
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")

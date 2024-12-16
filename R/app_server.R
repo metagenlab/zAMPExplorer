@@ -6,28 +6,30 @@
 #' @param input,output,session Default Shiny server parameters.
 #' @return None. This function is called for its side effects.
 #' @import shiny
-#' @importFrom ggplot2 ggplot aes geom_bar geom_histogram geom_boxplot theme
+#' @importFrom ggplot2 ggplot aes geom_bar geom_histogram geom_boxplot theme arrow unit labs element_text margin ggtitle scale_y_log10 ggsave geom_jitter
 #' @importFrom utils combn write.csv write.table
 #' @importFrom DT datatable DTOutput
-#' @importFrom plotly plotlyOutput renderPlotly
+#' @importFrom plotly plotlyOutput renderPlotly ggplotly config subplot
 #' @importFrom InteractiveComplexHeatmap InteractiveComplexHeatmapOutput
-#' @importFrom MicrobiotaProcess ggrarecurve
+#' @importFrom MicrobiotaProcess ggrarecurve get_upset
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom phyloseq distance otu_table sample_data rank_names sample_variables taxa_sums nsamples
-#' @importFrom phyloseq tax_table prune_samples sample_sums sample_names sample_data
+#' @importFrom phyloseq phyloseq distance otu_table sample_data rank_names sample_variables taxa_sums nsamples tax_table prune_samples sample_sums sample_names sample_data phy_tree ntaxa
 #' @importFrom dplyr filter mutate select
 #' @importFrom tidyr pivot_longer pivot_wider
-#' @importFrom vegan capscale adonis vegdist
+#' @importFrom vegan capscale adonis vegdist scores
 #' @importFrom writexl write_xlsx
 #' @importFrom microbiome transform aggregate_taxa core core_members
 #' @importFrom grDevices colorRampPalette dev.off pdf png svg
-#' @importFrom graphics box layout legend lines
-#' @importFrom stats anova as.formula coef fitted median p.adjust quantile setNames update wilcox.test
-#' @importFrom plotly config subplot
-#' @importFrom shinyFiles shinyFilesButton shinyDirButton
+#' @importFrom graphics layout legend lines
+#' @importFrom stats anova as.formula coef median p.adjust quantile setNames update wilcox.test
+#' @importFrom shinyFiles shinyFilesButton shinyDirButton parseDirPath
 #' @importFrom shinyWidgets pickerInput
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
+#' @importFrom shinydashboard dashboardPage box
+#' @importFrom DirichletMultinomial fitted
+#' @importFrom microViz comp_barplot tax_sort tax_agg tt_get otu_get ps_get tax_mutate tax_transform distinct_palette sampleAnnotation anno_sample_cat heat_palette taxAnnotation
+
 
 #' @noRd
 
@@ -182,35 +184,6 @@ app_server <- function(input, output, session) {
       )
     }
   })
-
-  # output$dynamic_tables <- renderUI({
-  #   if (output_view() == "metadata") {
-  #     fluidRow(
-  #       box(title = "Metadata Structure", width = 12, status = "primary",
-  #           DT::dataTableOutput("metadata_structure")
-  #       )
-  #     )
-  #   } else if (output_view() == "combined_table") {
-  #     fluidRow(
-  #       box(title = "Abundance/Taxonomy Table", width = 12, status = "primary",
-  #           # Display combined table
-  #           DT::dataTableOutput("combined_table"),
-  #           # File format selection for download (under the table)
-  #           selectInput("filetype", "Choose file type:", choices = c("csv", "xlsx", "tsv")),
-  #           # Download button for the combined table
-  #           downloadButton("download_combined_table", "Download Abundance/Taxonomy Table")
-  #       )
-  #     )
-  #   } else if (output_view() == "summary_statistics") {
-  #     fluidRow(
-  #       box(title = "Summary Statistics", width = 12, status = "primary",
-  #           DT::dataTableOutput("summary_statistics")
-  #       )
-  #     )
-  #
-  #   }
-  #
-  # })
 
 
 
@@ -430,7 +403,7 @@ app_server <- function(input, output, session) {
     p <- ggplot2::ggplot(data.frame(Reads = reads_per_sample), aes(x = Reads)) +
       ggplot2::geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
       labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-      theme_minimal()
+      ggplot2::theme_minimal()
     plotly::ggplotly(p)
   })
 
@@ -443,10 +416,10 @@ app_server <- function(input, output, session) {
       p <- ggplot2::ggplot(data.frame(Reads = sample_sums(physeq())), aes(x = Reads)) +
         ggplot2::geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
         labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-        theme_minimal()
+        ggplot2::theme_minimal()
 
-      # Use ggsave with the specified device
-      ggsave(filename = file, plot = p, device = input$plot_filetype_samples, width = input$plot_width_samples, height = input$plot_height_samples)
+      # Use ggplot2::ggsave with the specified device
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_samples, width = input$plot_width_samples, height = input$plot_height_samples)
     }
   )
 
@@ -476,10 +449,10 @@ app_server <- function(input, output, session) {
         x = "Group",
         y = "Number of Reads"
       ) +
-      theme_minimal() +
+      ggplot2::theme_minimal() +
       theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.margin = margin(20, 20, 20, 20)  # Add margins around the plot
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        plot.margin = ggplot2::margin(20, 20, 20, 20)  # Add margins around the plot
       )
 
     plotly::ggplotly(p, tooltip = "text")
@@ -500,11 +473,11 @@ app_server <- function(input, output, session) {
         ggplot2::geom_boxplot(alpha = 0.7, outlier.color = "red") +
         ggplot2::geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)), color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
         labs(title = "Reads Distribution per Sample Group", x = "Group", y = "Number of Reads") +
-        theme_minimal() +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplot2::theme_minimal() +
+        theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-      # Use ggsave with the specified device and dimensions
-      ggsave(filename = file, plot = p, device = input$plot_filetype_groups, width = input$plot_width_groups, height = input$plot_height_groups)
+      # Use ggplot2::ggsave with the specified device and dimensions
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_groups, width = input$plot_width_groups, height = input$plot_height_groups)
     }
   )
 
@@ -571,7 +544,7 @@ app_server <- function(input, output, session) {
     p <- ggplot2::ggplot(samples_df, aes(x = Sample, y = Reads)) +
       geom_bar(stat = "identity", fill = "steelblue") +
       labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
-      theme_minimal() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      ggplot2::theme_minimal() + theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
 
     plotly::ggplotly(p)
   })
@@ -586,12 +559,13 @@ app_server <- function(input, output, session) {
       p <- ggplot2::ggplot(samples_df, aes(x = Sample, y = Reads)) +
         geom_bar(stat = "identity", fill = "steelblue") +
         labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
-        theme_minimal() +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        ggplot2::theme_minimal() +
+        theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
 
-      ggsave(filename = file, plot = p, device = input$plot_filetype_reads, width = input$plot_width_reads, height = input$plot_height_reads)
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_reads, width = input$plot_width_reads, height = input$plot_height_reads)
     }
   )
+
 
 
 
@@ -605,7 +579,7 @@ app_server <- function(input, output, session) {
     )
 
     # Filter samples with sufficient reads
-    filtered_physeq <- phyloseq::prune_samples(sample_sums(current_physeq()) >= 100, current_physeq())  # Keep samples with at least 100 reads
+    filtered_physeq <- prune_samples(sample_sums(current_physeq()) >= 100, current_physeq())  # Keep samples with at least 100 reads
 
     # Check if filtering removed all samples
     if (nsamples(filtered_physeq) == 0) {
@@ -628,12 +602,6 @@ app_server <- function(input, output, session) {
   })
 
 
-  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
-    showNotification("The required package 'RColorBrewer' is not installed. Please install it to use this feature.", type = "error")
-    return()
-  }
-
-
   # Reactive expression to create the rarefaction plot
   rarefaction_plot <- reactive({
     req(current_physeq(), input$group_column)  # Ensure phyloseq object and group column are selected
@@ -642,19 +610,19 @@ app_server <- function(input, output, session) {
     rareres <- rarefaction_data()  # Use the reactive rarefaction data
 
     # Create the ggplot2 rarefaction plot
-    prare2 <- ggrarecurve(
+    prare2 <- MicrobiotaProcess::ggrarecurve(
       obj = rareres,
       factorNames = input$group_column,
       shadow = FALSE,
       indexNames = c("Observe", "Chao1", "ACE")
     ) +
-      ggplot2::scale_color_manual(values = colorRampPalette(RColorBrewer::brewer.pal(12, "Paired"))(20))+
-      ggplot2::theme_bw() +
+      scale_color_manual(values = colorRampPalette(brewer.pal(12, "Paired"))(20))+
+      theme_bw() +
       theme(
-        axis.text = element_text(size = 8),
-        panel.grid = element_blank(),
-        strip.background = element_rect(colour = NA, fill = "grey"),
-        strip.text.x = element_text(face = "bold")
+        axis.text = ggplot2::element_text(size = 8),
+        panel.grid = ggplot2::element_blank(),
+        strip.background = ggplot2::element_rect(colour = NA, fill = "grey"),
+        strip.text.x = ggplot2::element_text(face = "bold")
       )
 
     prare2  # Return the ggplot object
@@ -662,7 +630,7 @@ app_server <- function(input, output, session) {
 
   # Render the rarefaction plot using Plotly for interactivity
   output$rarefaction_curves_plot <- renderPlotly({
-    plotly::ggplotly(rarefaction_plot())  # Convert the ggplot object to a Plotly object
+    ggplotly(rarefaction_plot())  # Convert the ggplot object to a Plotly object
   })
 
   # Download handler for the rarefaction plot
@@ -671,8 +639,8 @@ app_server <- function(input, output, session) {
       paste0("rarefaction_curves_", Sys.Date(), ".", input$plot_filetype_groups)
     },
     content = function(file) {
-      # Use ggsave to save the plot generated by the reactive expression
-      ggsave(
+      # Use ggplot2::ggsave to save the plot generated by the reactive expression
+      ggplot2::ggsave(
         filename = file,
         plot = rarefaction_plot(),  # Use the reactive plot directly
         device = input$plot_filetype_groups,
@@ -681,8 +649,6 @@ app_server <- function(input, output, session) {
       )
     }
   )
-
-
 
 
 
@@ -942,7 +908,7 @@ app_server <- function(input, output, session) {
       # Create the dominant taxa plot
       p <- microViz::comp_barplot(physeq_dominant, tax_level = taxa_level, facet_by = input$group_column,
                                   label = paste("dominant", taxa_level, sep = "_"), n_taxa = n_max) +
-        coord_flip() +
+        ggplot2::coord_flip() +
         labs(title = paste("Dominant Taxa Composition in each Sample"))
 
       # Store the plot in the reactive value
@@ -970,7 +936,7 @@ app_server <- function(input, output, session) {
       req(p)  # Ensure that the plot exists
 
       # Save the plot to the specified file
-      ggsave(file, plot = p, device = "png", width = 8, height = 6)
+      ggplot2::ggsave(file, plot = p, device = "png", width = 8, height = 6)
     }
   )
 
@@ -1006,7 +972,7 @@ app_server <- function(input, output, session) {
     p <- ggplot2::ggplot(plot_df, aes(x = Prevalence, y = Abundance, color = Phylum, label = Genus)) +
       ggplot2::geom_point(size = 3, alpha = 0.8) +
       scale_y_log10() +  # Log scale for abundance
-      theme_minimal() +
+      ggplot2::theme_minimal() +
       labs(title = "Prevalence vs Abundance", x = "Prevalence (%)", y = "Abundance") +
       theme(legend.position = "right")
 
@@ -1025,7 +991,7 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       # Reuse the ggplot object stored in the reactive expression
-      ggsave(file, plot = prevalence_abundance_plot(),
+      ggplot2::ggsave(file, plot = prevalence_abundance_plot(),
              device = input$plot_filetype_groups,  # Dynamic file type
              width = input$plot_width_groups,      # Dynamic width
              height = input$plot_height_groups)    # Dynamic height
@@ -1063,7 +1029,7 @@ app_server <- function(input, output, session) {
     }
 
     # Use get_upset to generate the binary matrix for upset plot
-    upset_data <- get_upset(physeq_core, factorNames = group_var)
+    upset_data <- MicrobiotaProcess::get_upset(physeq_core, factorNames = group_var)
 
     # Create the upset plot using sample groupings
     upset_plot <- UpSetR::upset(
@@ -1236,7 +1202,7 @@ app_server <- function(input, output, session) {
       fill_color = c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF", "darkgreen", "orchid4"),
       stroke_size = 0.5, set_name_size = 4
     ) +
-      ggtitle(paste("Venn Diagram - Unique and Shared", input$taxonomy_level))
+      ggplot2::ggtitle(paste("Venn Diagram - Unique and Shared", input$taxonomy_level))
 
     return(venn_plot)
   })
@@ -1253,7 +1219,7 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       venn_plot <- venn_plot_reactive()
-      ggsave(file, plot = venn_plot, device = input$plot_filetype_venn,
+      ggplot2::ggsave(file, plot = venn_plot, device = input$plot_filetype_venn,
              width = input$plot_width_venn, height = input$plot_height_venn)
     }
   )
@@ -1386,9 +1352,9 @@ app_server <- function(input, output, session) {
     nShades <- input$nShades
 
     hierarchicalPalInfo <- data.frame(
-      hue = as.vector(tt_get(pseq2)[, hueRank]),
-      shade = as.vector(tt_get(pseq2)[, shadeRank]),
-      counts = phyloseq::taxa_sums(otu_get(pseq2))
+      hue = as.vector(microViz::tt_get(pseq2)[, hueRank]),
+      shade = as.vector(microViz::tt_get(pseq2)[, shadeRank]),
+      counts = phyloseq::taxa_sums(microViz::otu_get(pseq2))
     )
 
     hierarchicalPalInfo <- hierarchicalPalInfo %>%
@@ -1419,15 +1385,15 @@ app_server <- function(input, output, session) {
     facet_by <- if (input$facetBy == "None") NULL else input$facetBy
 
     p <- pseq2 %>%
-      ps_get() %>%
-      tax_mutate("Taxa" = hierarchicalPalInfo$Taxa, .keep = "none") %>%
+      microViz::ps_get() %>%
+      microViz::tax_mutate("Taxa" = hierarchicalPalInfo$Taxa, .keep = "none") %>%
       microViz::comp_barplot(
         tax_level = "Taxa", n_taxa = length(palette_colors),
         facet_by = facet_by,
         tax_order = "asis", palette = palette_colors, bar_width = 0.975
       ) +
-      coord_flip() +
-      theme(legend.text = element_text(family = "mono"))
+      ggplot2::coord_flip() +
+      theme(legend.text = ggplot2::element_text(family = "mono"))
 
     plotly::ggplotly(p)
   })
@@ -1535,11 +1501,11 @@ app_server <- function(input, output, session) {
     heatmap_obj <- microViz::comp_heatmap(
       psq_normalized_pruned,
       taxa = top_taxa,
-      tax_anno = taxAnnotation(Prev. = anno_tax_prev(bar_width = 0.3, size = grid::unit(1, "cm"))),
+      tax_anno = microViz::taxAnnotation(Prev. = microViz::anno_tax_prev(bar_width = 0.3, size = grid::unit(1, "cm"))),
       sample_anno = sample_anno,
       sample_seriation = "OLO_ward",
       tax_seriation = "OLO_ward",
-      colors = heat_palette(palette = "Rocket", rev = TRUE),
+      colors = microViz::heat_palette(palette = "Rocket", rev = TRUE),
       cluster_rows = input$clusterRows,
       cluster_columns = input$clusterColumns,
       sample_names_show = TRUE
@@ -1637,14 +1603,14 @@ app_server <- function(input, output, session) {
           ggplot2::geom_boxplot(outlier.shape = NA, width = 0.4, alpha = 0.75) +
           ggplot2::geom_jitter(height = 0, width = 0.2, alpha = 0.5, size = 2) +
           ggplot2::scale_color_manual(values = custom_colors) +
-          theme_minimal(base_size = 15) +
-          labs(y = metric, x = "Groups") +
+          ggplot2::theme_minimal(base_size = 15) +
+          ggplot2::labs(y = metric, x = "Groups") +
           theme(
             legend.position = "right",
-            plot.title = element_text(hjust = 0.5),
-            axis.title.x = element_blank(),
-            axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.margin = margin(t = 40, r = 40, b = 40, l = 60, unit = "pt")
+            plot.title = ggplot2::element_text(hjust = 0.5),
+            axis.title.x = ggplot2::element_blank(),
+            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+            plot.margin = ggplot2::margin(t = 40, r = 40, b = 40, l = 60, unit = "pt")
           )
 
         # Store ggplot and plotly versions
@@ -1697,7 +1663,7 @@ app_server <- function(input, output, session) {
         }
 
         # Save the plot with ggsave
-        ggsave(
+        ggplot2::ggsave(
           filename = file,
           plot = p,
           width = input$plot_width,
@@ -1916,7 +1882,7 @@ app_server <- function(input, output, session) {
 
   output$download_PCoAPlot <- downloadHandler(
     filename = function() { paste0("PCoA_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_obj()); ggsave(file, plot = ggplot_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
+    content = function(file) { req(ggplot_obj()); ggplot2::ggsave(file, plot = ggplot_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
   )
 
   # Plotting: PCA
@@ -1946,7 +1912,7 @@ app_server <- function(input, output, session) {
 
   output$download_PCAPlot <- downloadHandler(
     filename = function() { paste0("PCA_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_pca_obj()); ggsave(file, plot = ggplot_pca_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
+    content = function(file) { req(ggplot_pca_obj()); ggplot2::ggsave(file, plot = ggplot_pca_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
   )
 
 
@@ -2015,7 +1981,7 @@ app_server <- function(input, output, session) {
 
   output$download_NMDSPlot <- downloadHandler(
     filename = function() { paste0("NMDS_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_nmds_obj()); ggsave(file, plot = ggplot_nmds_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype)
+    content = function(file) { req(ggplot_nmds_obj()); ggplot2::ggsave(file, plot = ggplot_nmds_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype)
     }
   )
 
@@ -2463,22 +2429,28 @@ app_server <- function(input, output, session) {
 
 
 
-  generateDriverPlot <- function(best, physeq, k) {
-    d <- reshape2::melt(fitted(best))
+  generateDriverPlot <- function(bestmodel, physeq, k) {
+    d <- melt(DirichletMultinomial::fitted(bestmodel))
+
     colnames(d) <- c("ASV", "cluster", "value")
+
 
     # Get the tax_table from the phyloseq object
     tax_df <- as.data.frame(phyloseq::tax_table(physeq))
 
+
     # Create a new column combining Genus, Species, and ASV
-    d$Taxa <- with(tax_df[d$ASV, ], paste0(Genus, "_", Species, " (", d$ASV, ")"))
+    d_tax_merge <- dplyr::left_join(d, tax_df %>% tibble::rownames_to_column("ASV"), by = "ASV")
+    d <- d_tax_merge %>% dplyr::mutate(Taxa= paste0(Genus, "_", Species, " (", ASV, ")"))
+    #d$Taxa <- with(tax_df[d$ASV, ], paste0(Genus, "_", Species, " (", d$ASV, ")"))
+
 
     # Replace NA values with "Unknown"
     d$Taxa[is.na(d$Taxa)] <- paste0("Unknown (", d$ASV[is.na(d$Taxa)], ")")
 
     # Filter and prepare the data for plotting
     d <- d %>% filter(cluster == k) %>%
-      arrange(value) %>%
+      dplyr::arrange(value) %>%
       mutate(Taxa = factor(Taxa, levels = unique(Taxa))) %>%
       filter(abs(value) > quantile(abs(value), 0.8))
 
@@ -2486,8 +2458,8 @@ app_server <- function(input, output, session) {
     ggplot2::ggplot(d, aes(x = Taxa, y = value)) +
       ggplot2::theme_bw() +
       geom_bar(stat = "identity", fill = "darkblue") +
-      coord_flip() +
-      labs(title = paste("Top drivers: community type", k))
+      ggplot2::coord_flip() +
+      ggplot2::labs(title = paste("Top drivers: community type", k))
   }
 
 
@@ -2506,11 +2478,12 @@ app_server <- function(input, output, session) {
     pseq <- phyloseq::prune_taxa(taxa, current_physeq())
 
     # Aggregate at selected taxonomic rank
-    if (input$taxRankDMM %in% c("Genus", "Species")) {
-      pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
-    } else {
-      pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
-    }
+    pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
+    # if (input$taxRankDMM %in% c("Genus", "Species")) {
+    #   pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
+    # } else {
+    #   pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
+    # }
 
     dat <- microbiome::abundances(pseq)
     count <- as.matrix(t(dat))
@@ -2519,6 +2492,7 @@ app_server <- function(input, output, session) {
     if (nrow(count) > 0) {
       # Model Fitting
       fit <- lapply(1:input$numComponents, DirichletMultinomial::dmn, count = count, verbose = TRUE)
+
       lplc <- sapply(fit, DirichletMultinomial::laplace)
       aic <- sapply(fit, DirichletMultinomial::AIC)
       bic <- sapply(fit, DirichletMultinomial::BIC)
@@ -2557,7 +2531,7 @@ app_server <- function(input, output, session) {
 
       # Render Driver Plots
       output$driverPlotsUI <- renderUI({
-        plots <- lapply(1:ncol(fitted(best)), function(k) {
+        plots <- lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
           plotname <- paste("driverPlot", k, sep = "")
           plotOutput(plotname)
         })
@@ -2565,7 +2539,7 @@ app_server <- function(input, output, session) {
       })
 
       # Using the function for rendering plots
-      lapply(1:ncol(fitted(best)), function(k) {
+      lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
         output[[paste("driverPlot", k, sep = "")]] <- renderPlot({
           generateDriverPlot(best, current_physeq(), k)
         })
@@ -2631,7 +2605,7 @@ app_server <- function(input, output, session) {
         },
         content = function(file) {
           pdf(file)
-          lapply(1:ncol(fitted(best)), function(k) {
+          lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
             print(generateDriverPlot(best, current_physeq(), k))
           })
           dev.off()
@@ -2791,13 +2765,13 @@ app_server <- function(input, output, session) {
       # Generate the plot
       rda_plot <- ggplot() +
         ggplot2::geom_point(data = species_df, aes(x = CAP1, y = CAP2), size = 2, shape = 17, alpha = 0.7, color = "red") +
-        geom_text(data = species_df, aes(x = CAP1, y = CAP2, label = Taxa), size = 3, hjust = 1.1, vjust = 1.1, color = "darkred") +
+        ggplot2::geom_text(data = species_df, aes(x = CAP1, y = CAP2, label = Taxa), size = 3, hjust = 1.1, vjust = 1.1, color = "darkred") +
         ggplot2::geom_point(data = site_df, aes(x = CAP1, y = CAP2, color = Group, shape = Group), size = 4, alpha = 0.7) +
-        geom_segment(data = env_df, aes(x = 0, y = 0, xend = CAP1, yend = CAP2), arrow = arrow(length = unit(0.3, "cm")), color = "blue") +
+        ggplot2::geom_segment(data = env_df, aes(x = 0, y = 0, xend = CAP1, yend = CAP2), arrow = arrow(length = unit(0.3, "cm")), color = "blue") +
         ggplot2::scale_color_manual(values = setNames(group_colors, group_levels)) +
         ggplot2::scale_shape_manual(values = setNames(group_shapes, group_levels)) +
-        labs(title = "CAP (dbRDA) Plot", x = "CAP1", y = "CAP2", color = "Group", shape = "Group") +
-        theme_minimal()
+        ggplot2::labs(title = "CAP (dbRDA) Plot", x = "CAP1", y = "CAP2", color = "Group", shape = "Group") +
+        ggplot2::theme_minimal()
 
       # Render the ggplot
       ggplot_plots_rda(rda_plot)
@@ -2809,7 +2783,7 @@ app_server <- function(input, output, session) {
           paste0("CAP_RDA_Plot_", Sys.Date(), ".", input$rda_filetype)
         },
         content = function(file) {
-          ggsave(
+          ggplot2::ggsave(
             file,
             plot = ggplot_plots_rda(),
             width = 10,
