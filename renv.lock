@@ -36,6 +36,10 @@
       "Package": "Biobase",
       "Version": "2.62.0",
       "Source": "bioc_xgit",
+      "git_url": "https://git.bioconductor.org/packages/Biobase",
+      "git_branch": "RELEASE_3_18",
+      "git_last_commit": "8201fbb",
+      "git_last_commit_date": "2023-10-24",
       "RemoteType": "bioc_xgit",
       "RemoteMirror": "https://git.bioconductor.org/packages",
       "RemoteRepo": "Biobase",
@@ -200,8 +204,12 @@
     },
     "DirichletMultinomial": {
       "Package": "DirichletMultinomial",
-      "Version": "1.44.0",
+      "Version": "1.47.2",
       "Source": "Bioconductor",
+      "Repository": "https://metagenlab.r-universe.dev",
+      "RemoteUrl": "https://github.com/mtmorgan/DirichletMultinomial",
+      "RemoteRef": "devel",
+      "RemoteSha": "4278e86393a8b1dfa6e314cb835bb27c5239ed88",
       "Requirements": [
         "BiocGenerics",
         "IRanges",
@@ -209,7 +217,7 @@
         "methods",
         "stats4"
       ],
-      "Hash": "18131c758b36c44d13e2ca9fdf656343"
+      "Hash": "f64bd0afa26b66b0b76540c6d8dd3cb1"
     },
     "Formula": {
       "Package": "Formula",
@@ -311,13 +319,8 @@
     },
     "InteractiveComplexHeatmap": {
       "Package": "InteractiveComplexHeatmap",
-      "Version": "1.11.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "InteractiveComplexHeatmap",
-      "RemoteUsername": "jokergoo",
-      "RemoteSha": "ad88747652baf53fa0c4e5929096826bd0b1b5e6",
+      "Version": "1.10.0",
+      "Source": "Bioconductor",
       "Requirements": [
         "ComplexHeatmap",
         "GetoptLong",
@@ -338,7 +341,7 @@
         "svglite",
         "utils"
       ],
-      "Hash": "4edb6f5dff184209a57d0217cc0353c9"
+      "Hash": "5c868ffb5dc20ae155d13b874375c2f0"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
@@ -443,13 +446,9 @@
     },
     "MicrobiotaProcess": {
       "Package": "MicrobiotaProcess",
-      "Version": "1.19.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "MicrobiotaProcess",
-      "RemoteUsername": "YuLab-SMU",
-      "RemoteSha": "a2caa6bd17f07996b6c5afcd9b933890ed57c4b2",
+      "Version": "1.14.1",
+      "Source": "Bioconductor",
+      "Repository": "Bioconductor 3.18",
       "Requirements": [
         "Biostrings",
         "MASS",
@@ -486,7 +485,7 @@
         "vegan",
         "zoo"
       ],
-      "Hash": "d7182a0f8d0937e3e6699d68f1152be8"
+      "Hash": "47e4e28140eda6761b4dd8d29261d9f5"
     },
     "PKI": {
       "Package": "PKI",
@@ -544,7 +543,7 @@
     },
     "RcppArmadillo": {
       "Package": "RcppArmadillo",
-      "Version": "14.2.0-1",
+      "Version": "14.2.2-1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -554,7 +553,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "ce9c35ab9ea9c6ef4e27a08868cdb32b"
+      "Hash": "9da7c242d94a8419d045f6b3a64b9765"
     },
     "RcppEigen": {
       "Package": "RcppEigen",
@@ -1357,7 +1356,7 @@
         "whisker",
         "withr"
       ],
-      "Hash": "163a20ecce2c3936f2039a5ab8b496ee"
+      "Hash": "f881b49eb1e5060f935a75b09c3fc6cd"
     },
     "cowplot": {
       "Package": "cowplot",
@@ -1401,13 +1400,13 @@
     },
     "cpp11": {
       "Package": "cpp11",
-      "Version": "0.5.0",
+      "Version": "0.5.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R"
       ],
-      "Hash": "91570bba75d0c9d3f1040c835cee8fba"
+      "Hash": "9df43854f1c84685d095ed6270b52387"
     },
     "crayon": {
       "Package": "crayon",
@@ -1460,14 +1459,14 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.16.2",
+      "Version": "1.16.4",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "2e00b378fc3be69c865120d9f313039a"
+      "Hash": "38bbf05fc2503143db4c734a7e5cab66"
     },
     "desc": {
       "Package": "desc",
@@ -2320,7 +2319,7 @@
     },
     "igraph": {
       "Package": "igraph",
-      "Version": "2.1.1",
+      "Version": "2.1.2",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2339,7 +2338,7 @@
         "utils",
         "vctrs"
       ],
-      "Hash": "c03878b48737a0e2da3b772d7b2e22da"
+      "Hash": "9a93b743b2461ba06ba3b5df12011145"
     },
     "ini": {
       "Package": "ini",
@@ -2684,9 +2683,10 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "microViz",
       "RemoteUsername": "david-barnett",
-      "RemoteSha": "470eac0283a20dd2d56d2780759977b282bd9850",
+      "RemoteRepo": "microViz",
+      "RemoteRef": "0.12.5",
+      "RemoteSha": "7ac2c86d268dce0e4ce7205984892de510c9b4f6",
       "Requirements": [
         "ComplexHeatmap",
         "R",
@@ -2708,7 +2708,7 @@
         "tidyr",
         "vegan"
       ],
-      "Hash": "77c7fb97a41970bda32d5fb09bbac637"
+      "Hash": "3f7beac9b231aaa4b3379a9ae11fb149"
     },
     "microbenchmark": {
       "Package": "microbenchmark",
@@ -3742,7 +3742,7 @@
     },
     "seriation": {
       "Package": "seriation",
-      "Version": "1.5.6",
+      "Version": "1.5.7",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3761,7 +3761,7 @@
         "stats",
         "vegan"
       ],
-      "Hash": "78671284f60a1c08b90c2754f024046d"
+      "Hash": "9701ad285dcf9ffc66e9c62d65193f4e"
     },
     "sessioninfo": {
       "Package": "sessioninfo",
@@ -3791,7 +3791,7 @@
     },
     "shiny": {
       "Package": "shiny",
-      "Version": "1.9.1",
+      "Version": "1.10.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -3820,7 +3820,7 @@
         "withr",
         "xtable"
       ],
-      "Hash": "6a293995a66e12c48d13aa1f957d09c7"
+      "Hash": "4b4477baa9a939c5577e5ddb4bf01f28"
     },
     "shinyFiles": {
       "Package": "shinyFiles",
@@ -4139,8 +4139,14 @@
     },
     "treeio": {
       "Package": "treeio",
-      "Version": "1.26.0",
-      "Source": "Bioconductor",
+      "Version": "1.31.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "GuangchuangYu",
+      "RemoteRepo": "treeio",
+      "RemoteRef": "devel",
+      "RemoteSha": "3f53eecb86689c317f5ca4b130d89a24a763bd0f",
       "Requirements": [
         "R",
         "ape",
@@ -4152,9 +4158,10 @@
         "stats",
         "tibble",
         "tidytree",
-        "utils"
+        "utils",
+        "yulab.utils"
       ],
-      "Hash": "a09203806aa0bc49965563ca7016620e"
+      "Hash": "d816a5695f616628cb03bb616ffd5c90"
     },
     "tweedie": {
       "Package": "tweedie",
