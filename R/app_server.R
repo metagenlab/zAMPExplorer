@@ -27,7 +27,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom reshape2 melt
 #' @importFrom shinydashboard dashboardPage box
-#' @importFrom DirichletMultinomial fitted
 #' @importFrom tibble rownames_to_column
 #' @importFrom microViz comp_barplot tax_sort tax_agg tt_get otu_get ps_get tax_mutate tax_transform distinct_palette sampleAnnotation anno_sample_cat heat_palette taxAnnotation
 
