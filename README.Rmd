@@ -57,7 +57,7 @@ zAMPExplorer enables users to perform a wide range of microbiota and statistical
 
 # Download the install_dependencies.R script to install required dependencies.
 download.file("https://raw.githubusercontent.com/metagenlab/zAMPExplorer/latest/R/install_dependencies.R",
-              "install_dependencies.R")
+                              "install_dependencies.R")
 
 # Run the script to install all dependencies
 source("./R/install_dependencies.R")
