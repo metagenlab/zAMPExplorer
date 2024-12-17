@@ -62,8 +62,7 @@ exploration.
 ``` r
 
 # Download the install_dependencies.R script to install required dependencies.
-download.file("https://github.com/metagenlab/zAMPExplorer/tree/latest/R/install_dependencies.R",
-              "install_dependencies.R")
+download.file("https://github.com/metagenlab/zAMPExplorer/tree/latest/R/install_dependencies.R", "install_dependencies.R")
 
 # Run the script to install all dependencies
 source("install_dependencies.R")
