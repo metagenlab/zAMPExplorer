@@ -4,5 +4,5 @@
 utils::globalVariables(c(
   "Reads", "Group", "Sample", "CAP1", "CAP2",
   "subplot", "value", "Taxa", "Abundance",
-  "Prevalence", "Genus", "Phylum", "qval"
+  "Prevalence", "Genus", "Phylum", "qval", "ASV"
 ))
