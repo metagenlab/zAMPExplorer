@@ -159,7 +159,7 @@ docker run --rm -p 3838:3838 zampexplorer:latest
 #-p 3838:3838: Maps the container’s Shiny app port 3838 to your local port 3838.
 ```
 
-\####Step 4: Access the Application
+#### Step 4: Access the Application
 
 ``` r
 
