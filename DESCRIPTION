@@ -56,7 +56,6 @@ Imports:
     scales,
     RColorBrewer,
     plotly,
-    microViz,
     InteractiveComplexHeatmap
 Suggests: 
     spelling,
