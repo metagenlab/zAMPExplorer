@@ -28,6 +28,7 @@ usethis::use_package("writexl")
 usethis::use_package("shinyFiles")
 usethis::use_package("magrittr")
 usethis::use_package("ggplot2")
+usethis::use_package("DirichletMultinomial")
 usethis::use_package("tibble", type = "Suggests")
 utils::globalVariables(c(".", "hue", "shade", "padHue", "nChrHue", "cluster"))
 
