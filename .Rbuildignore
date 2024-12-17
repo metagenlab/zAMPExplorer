@@ -1,4 +1,7 @@
-^renv$
+^renv/
 ^renv\.lock$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.DS_Store$
+^rsconnect/
+^zAMPExplorer.Rproj$
