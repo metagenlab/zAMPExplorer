@@ -8,23 +8,6 @@
 #' @importFrom shinydashboard dashboardPage
 #' @noRd
 
-
-
-library(shinydashboard)
-library(plotly)
-library(DT)
-library(InteractiveComplexHeatmap)
-library(shinyFiles)
-library(phyloseq)
-library(microViz)
-library(microbiome)
-library(ggplot2)
-library(RColorBrewer)
-library(MicrobiotaProcess)
-library(ggvenn)
-library(reshape2)
-library(vegan)
-
 app_ui <- function(request) {
   shinydashboard::dashboardPage(
     shinydashboard::dashboardHeader(
@@ -67,29 +50,29 @@ app_ui <- function(request) {
       '))),
       shinydashboard::tabItems(
         shinydashboard::tabItem(tabName = "upload",
-                fluidRow(
-                  box(
-                    title = "Upload Phyloseq Object", width = 12, status = "primary",
-                    fileInput("physeqFile", "Choose Phyloseq RDS File", accept = c(".rds")),
-                    helpText("Upload the phyloseq object for analysis.")
-                  )
-                )
+                                fluidRow(
+                                  shinydashboard::box(
+                                    title = "Upload Phyloseq Object", width = 12, status = "primary",
+                                    fileInput("physeqFile", "Choose Phyloseq RDS File", accept = c(".rds")),
+                                    helpText("Upload the phyloseq object for analysis.")
+                                  )
+                                )
         ),
         shinydashboard::tabItem(tabName = "phyloseqcomponents",
-                fluidRow(
-                  box(title = "Phyloseq Components", width = 12, status = "primary",
-                      actionButton("show_metadata", "Metadata"),
-                      actionButton("show_combined_table", "Abundance/Taxonomy Table"),
-                      actionButton("show_summary_statistics", "Summary Statistics")
-                  )
-                ),
-                uiOutput("dynamic_tables"),
-                uiOutput("phylogenetic_tree_controls")
+                                fluidRow(
+                                  shinydashboard::box(title = "Phyloseq Components", width = 12, status = "primary",
+                                      actionButton("show_metadata", "Metadata"),
+                                      actionButton("show_combined_table", "Abundance/Taxonomy Table"),
+                                      actionButton("show_summary_statistics", "Summary Statistics")
+                                  )
+                                ),
+                                uiOutput("dynamic_tables"),
+                                uiOutput("phylogenetic_tree_controls")
         ),
         shinydashboard::tabItem(
           tabName = "readsQC",
           fluidRow(
-            box(
+            shinydashboard::box(
               title = "Reads Distribution", width = 12, status = "primary",
               actionButton("show_reads_distribution_samples", "Reads Distribution Across Samples"),
               actionButton("show_reads_distribution_groups", "Reads Distribution Across Groups"),
@@ -109,107 +92,107 @@ app_ui <- function(request) {
           )
         ),
         shinydashboard::tabItem(tabName = "taxaoverview",
-                fluidRow(
-                  box(title = "Taxa Overview", width = 12, status = "primary",
-                      actionButton("show_taxa_prevalence_samples", "Taxa Prevalence Across Samples"),
-                      actionButton("explain_taxa_prevalence_samples", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      actionButton("show_taxa_prevalence_groups", "Taxa Prevalence Across Groups"),
-                      actionButton("explain_taxa_prevalence_groups", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      actionButton("show_dominant_taxa_samples", "Dominant Taxa Per Sample"),
-                      actionButton("explain_dominant_taxa_samples", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      actionButton("show_prevalence_abundance_plot", "Prevalence vs Abundance Plot"),
-                      actionButton("explain_prevalence_abundance_plot", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      actionButton("show_upset_plot", "Upset Plot"),
-                      actionButton("explain_upset_plot", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      actionButton("show_venn_diagram_plot", "Venn Diagram"),
-                      actionButton("explain_venn_diagram_plot", label = NULL, icon = icon("info-circle"),
-                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                  )
-                ),
-                fluidRow(
-                  uiOutput("taxa_overview_content")
-                )
+                                fluidRow(
+                                  shinydashboard::box(title = "Taxa Overview", width = 12, status = "primary",
+                                      actionButton("show_taxa_prevalence_samples", "Taxa Prevalence Across Samples"),
+                                      actionButton("explain_taxa_prevalence_samples", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      actionButton("show_taxa_prevalence_groups", "Taxa Prevalence Across Groups"),
+                                      actionButton("explain_taxa_prevalence_groups", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      actionButton("show_dominant_taxa_samples", "Dominant Taxa Per Sample"),
+                                      actionButton("explain_dominant_taxa_samples", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      actionButton("show_prevalence_abundance_plot", "Prevalence vs Abundance Plot"),
+                                      actionButton("explain_prevalence_abundance_plot", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      actionButton("show_upset_plot", "Upset Plot"),
+                                      actionButton("explain_upset_plot", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      actionButton("show_venn_diagram_plot", "Venn Diagram"),
+                                      actionButton("explain_venn_diagram_plot", label = NULL, icon = icon("info-circle"),
+                                                   class = "btn-info", style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                  )
+                                ),
+                                fluidRow(
+                                  uiOutput("taxa_overview_content")
+                                )
         ),
 
         # Tab for compositional bar plot
         shinydashboard::tabItem(tabName = "barplot",
-                fluidRow(
-                  box(title = "Compositional Barplot",
-                      actionButton("show_compositional_explanation", label = NULL, icon = icon("info-circle"),
-                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      width = 12, status = "primary",
-                      selectInput("hueRank", "Select Primary Rank", choices = NULL),
-                      selectInput("shadeRank", "Select Lower Rank", choices = NULL),
-                      selectInput("facetBy", "Facet by", choices = NULL),
-                      sliderInput("nHues", "Number of Primary Taxa", min = 1, max = 10, value = 3),
-                      sliderInput("nShades", "Number of Lower Taxa in the main rank", min = 1, max = 10, value = 4)
-                  )
-                ),
-                fluidRow(
-                  box(title = "Compositional Barplot", width = 12, status = "primary",
-                      plotlyOutput("compositionalBarplot", height = "1000px", width = "100%"),
-                      selectInput("filetype", "Select file type", choices = c("png", "pdf", "jpeg", "svg")),
-                      numericInput("plot_width", "Plot Width (in pixels)", value = 1200, min = 400),
-                      numericInput("plot_height", "Plot Height (in pixels)", value = 800, min = 400),
-                      downloadButton("download_compositionalBarplot", "Download Plot")
-                  )
-                )
+                                fluidRow(
+                                  shinydashboard::box(title = "Compositional Barplot",
+                                      actionButton("show_compositional_explanation", label = NULL, icon = icon("info-circle"),
+                                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      width = 12, status = "primary",
+                                      selectInput("hueRank", "Select Primary Rank", choices = NULL),
+                                      selectInput("shadeRank", "Select Lower Rank", choices = NULL),
+                                      selectInput("facetBy", "Facet by", choices = NULL),
+                                      sliderInput("nHues", "Number of Primary Taxa", min = 1, max = 10, value = 3),
+                                      sliderInput("nShades", "Number of Lower Taxa in the main rank", min = 1, max = 10, value = 4)
+                                  )
+                                ),
+                                fluidRow(
+                                  shinydashboard::box(title = "Compositional Barplot", width = 12, status = "primary",
+                                      plotlyOutput("compositionalBarplot", height = "1000px", width = "100%"),
+                                      selectInput("filetype", "Select file type", choices = c("png", "pdf", "jpeg", "svg")),
+                                      numericInput("plot_width", "Plot Width (in pixels)", value = 1200, min = 400),
+                                      numericInput("plot_height", "Plot Height (in pixels)", value = 800, min = 400),
+                                      downloadButton("download_compositionalBarplot", "Download Plot")
+                                  )
+                                )
         ),
 
         # Tab for relative abundance heatmap
         shinydashboard::tabItem(tabName = "heatmap",
-                fluidRow(
-                  box(title = "Relative Abundance Heatmap",
-                      actionButton("show_heatmap_explanation", label = NULL, icon = icon("info-circle"),
-                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      width = 12, status = "primary",
+                                fluidRow(
+                                  shinydashboard::box(title = "Relative Abundance Heatmap",
+                                      actionButton("show_heatmap_explanation", label = NULL, icon = icon("info-circle"),
+                                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      width = 12, status = "primary",
 
-                      selectInput("normalizationMethod", "Select Normalization Method", choices = c("compositional", "Z", "log10", "log10p", "hellinger", "identity", "clr")),
-                      selectInput("heatmapRank", "Select Taxonomic Rank",
-                                  choices = c("ASV", "Phylum", "Family", "Genus", "Species"),
-                                  selected = "ASV"),
-                      selectInput("annotationColumn1", "Select First Annotation Column", choices = NULL),
-                      selectInput("annotationColumn2", "Select Second Annotation Column", choices = NULL),
-                      checkboxInput("clusterRows", "Cluster Rows", value = TRUE),
-                      checkboxInput("clusterColumns", "Cluster Columns", value = TRUE),
-                      numericInput("topTaxa", "Number of Top Taxa", value = 10, min = 1),
-                      actionButton("plotHeatmap", "Plot Heatmap"),
-                      InteractiveComplexHeatmapOutput("relativeAbundanceHeatmap")
-                  )
-                )
+                                      selectInput("normalizationMethod", "Select Normalization Method", choices = c("compositional", "Z", "log10", "log10p", "hellinger", "identity", "clr")),
+                                      selectInput("heatmapRank", "Select Taxonomic Rank",
+                                                  choices = c("ASV", "Phylum", "Family", "Genus", "Species"),
+                                                  selected = "ASV"),
+                                      selectInput("annotationColumn1", "Select First Annotation Column", choices = NULL),
+                                      selectInput("annotationColumn2", "Select Second Annotation Column", choices = NULL),
+                                      checkboxInput("clusterRows", "Cluster Rows", value = TRUE),
+                                      checkboxInput("clusterColumns", "Cluster Columns", value = TRUE),
+                                      numericInput("topTaxa", "Number of Top Taxa", value = 10, min = 1),
+                                      actionButton("plotHeatmap", "Plot Heatmap"),
+                                      InteractiveComplexHeatmapOutput("relativeAbundanceHeatmap")
+                                  )
+                                )
         ),
         # Tab for alpha diversity
         shinydashboard::tabItem(tabName = "alphaDiversity",
-                fluidRow(
-                  box(title = "Alpha Diversity Analysis", width = 12, status = "primary",
-                      actionButton("show_alpha_explanation", label = NULL, icon = icon("info-circle"),
-                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      selectInput("alphaMetric", "Select Diversity Metric", choices = NULL, multiple = TRUE),
-                      selectInput("alphaGroupingColumn", "Grouping Column", choices = NULL),
-                      actionButton("plotAlpha", "Plot Alpha Diversity"),
-                      actionButton("showStats", "Show Stats"),
-                      plotlyOutput("alphaDiversityPlot", height = "900px"), #, width = "100%"
-                      DTOutput("statsTable"),
-                      verbatimTextOutput("alphaDiversityNote"),
-                      selectInput("alpha_filetype", "Select file type", choices = c("html", "png", "pdf", "svg")),
-                      numericInput("plot_width", "Plot Width (in pixels)", value = 8, min = 12),
-                      numericInput("plot_height", "Plot Height (in pixels)", value = 5, min = 9),
-                      downloadButton("download_alphaDiversityPlot", "Download Plot"),
-                      downloadButton("downloadStats", "Download Stats")
-                  )
-                )
+                                fluidRow(
+                                  shinydashboard::box(title = "Alpha Diversity Analysis", width = 12, status = "primary",
+                                      actionButton("show_alpha_explanation", label = NULL, icon = icon("info-circle"),
+                                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      selectInput("alphaMetric", "Select Diversity Metric", choices = NULL, multiple = TRUE),
+                                      selectInput("alphaGroupingColumn", "Grouping Column", choices = NULL),
+                                      actionButton("plotAlpha", "Plot Alpha Diversity"),
+                                      actionButton("showStats", "Show Stats"),
+                                      plotlyOutput("alphaDiversityPlot", height = "900px"), #, width = "100%"
+                                      DTOutput("statsTable"),
+                                      verbatimTextOutput("alphaDiversityNote"),
+                                      selectInput("alpha_filetype", "Select file type", choices = c("html", "png", "pdf", "svg")),
+                                      numericInput("plot_width", "Plot Width (in pixels)", value = 8, min = 12),
+                                      numericInput("plot_height", "Plot Height (in pixels)", value = 5, min = 9),
+                                      downloadButton("download_alphaDiversityPlot", "Download Plot"),
+                                      downloadButton("downloadStats", "Download Stats")
+                                  )
+                                )
         ),
 
         # Tab for beta diversity
         shinydashboard::tabItem(
           tabName = "betaDiversity",
           fluidRow(
-            box(
+            shinydashboard::box(
               title = "Beta Diversity Analysis",
               width = 12,
               status = "primary",
@@ -285,7 +268,7 @@ app_ui <- function(request) {
         shinydashboard::tabItem(
           tabName = "differentialAbundance",
           fluidRow(
-            box(
+            shinydashboard::box(
               title = "Differential Abundance Analysis",
               width = 12,
               status = "primary",
@@ -358,106 +341,106 @@ app_ui <- function(request) {
 
         # Tab for community typing
         shinydashboard::tabItem(tabName = "communityTyping",
-                fluidRow(
-                  box(title = "Dirichlet Multinomial Mixture (DMM) Model",
-                      actionButton("show_community_typing_explanation", label = NULL, icon = icon("info-circle"),
-                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                      status = "primary", width = 12,
-                      selectInput("taxRankDMM", "Select Taxonomic Rank", choices = NULL),
-                      numericInput("detectionThreshold", "Detection Threshold (%)", value = 0.1, min = 0.01, max = 100, step = 0.01),
-                      numericInput("prevalenceThreshold", "Prevalence Threshold (%)", value = 50, min = 0.01, max = 100, step = 0.01),
-                      numericInput("numComponents", "Number of Dirichlet Components", value = 2, min = 1),
-                      actionButton("runDMM", "Run DMM Analysis")
-                  )
-                ),
+                                fluidRow(
+                                  shinydashboard::box(title = "Dirichlet Multinomial Mixture (DMM) Model",
+                                      actionButton("show_community_typing_explanation", label = NULL, icon = icon("info-circle"),
+                                                   style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                      status = "primary", width = 12,
+                                      selectInput("taxRankDMM", "Select Taxonomic Rank", choices = NULL),
+                                      numericInput("detectionThreshold", "Detection Threshold (%)", value = 0.1, min = 0.01, max = 100, step = 0.01),
+                                      numericInput("prevalenceThreshold", "Prevalence Threshold (%)", value = 50, min = 0.01, max = 100, step = 0.01),
+                                      numericInput("numComponents", "Number of Dirichlet Components", value = 2, min = 1),
+                                      actionButton("runDMM", "Run DMM Analysis")
+                                  )
+                                ),
 
-                fluidRow(
-                  # Add buttons for each result
-                  box(width = 12,
-                      actionButton("showModelFit", "Show Model Fit Plot"),
-                      actionButton("showMixtureParams", "Show Mixture Parameters"),
-                      actionButton("showSampleAssignments", "Show Sample Assignments"),
-                      actionButton("showDriverPlots", "Show Driver Plots")
-                  )
-                ),
+                                fluidRow(
+                                  # Add buttons for each result
+                                  shinydashboard::box(width = 12,
+                                      actionButton("showModelFit", "Show Model Fit Plot"),
+                                      actionButton("showMixtureParams", "Show Mixture Parameters"),
+                                      actionButton("showSampleAssignments", "Show Sample Assignments"),
+                                      actionButton("showDriverPlots", "Show Driver Plots")
+                                  )
+                                ),
 
-                # Create space for each result to be displayed conditionally
-                fluidRow(
-                  conditionalPanel(
-                    condition = "input.showModelFit == 1",
-                    box(title = "Model Fit", width = 12, plotOutput("modelFitPlot"))
-                  ),
-                  conditionalPanel(
-                    condition = "input.showMixtureParams == 1",
-                    box(title = "Mixture Parameters", width = 12, verbatimTextOutput("mixtureParams"))
-                  ),
-                  conditionalPanel(
-                    condition = "input.showSampleAssignments == 1",
-                    box(title = "Sample Assignments", width = 12, verbatimTextOutput("sampleAssignments"))
-                  ),
-                  conditionalPanel(
-                    condition = "input.showDriverPlots == 1",
-                    box(title = "Driver Plots", width = 12, uiOutput("driverPlotsUI"))
-                  )
-                ),
+                                # Create space for each result to be displayed conditionally
+                                fluidRow(
+                                  conditionalPanel(
+                                    condition = "input.showModelFit == 1",
+                                    shinydashboard::box(title = "Model Fit", width = 12, plotOutput("modelFitPlot"))
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.showMixtureParams == 1",
+                                    shinydashboard::box(title = "Mixture Parameters", width = 12, verbatimTextOutput("mixtureParams"))
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.showSampleAssignments == 1",
+                                    shinydashboard::box(title = "Sample Assignments", width = 12, verbatimTextOutput("sampleAssignments"))
+                                  ),
+                                  conditionalPanel(
+                                    condition = "input.showDriverPlots == 1",
+                                    shinydashboard::box(title = "Driver Plots", width = 12, uiOutput("driverPlotsUI"))
+                                  )
+                                ),
 
-                # Add download buttons
-                fluidRow(
-                  box(title = "Download Results", width = 12, status = "primary",
-                      downloadButton("downloadModelFitPlot", "Download Model Fit Plot"),
-                      downloadButton("downloadMixtureParams", "Download Mixture Parameters"),
-                      DTOutput("sampleAssignments"),
-                      downloadButton("downloadSampleAssignments", "Download Sample Assignments"),
-                      downloadButton("downloadDriverPlots", "Download Driver Plots"),
-                      downloadButton("downloadUpdatedPhyseq", "Download Updated Phyloseq Object"),
-                      downloadButton("downloadMetadata", "Download Metadata")
-                  )
-                )
+                                # Add download buttons
+                                fluidRow(
+                                  shinydashboard::box(title = "Download Results", width = 12, status = "primary",
+                                      downloadButton("downloadModelFitPlot", "Download Model Fit Plot"),
+                                      downloadButton("downloadMixtureParams", "Download Mixture Parameters"),
+                                      DTOutput("sampleAssignments"),
+                                      downloadButton("downloadSampleAssignments", "Download Sample Assignments"),
+                                      downloadButton("downloadDriverPlots", "Download Driver Plots"),
+                                      downloadButton("downloadUpdatedPhyseq", "Download Updated Phyloseq Object"),
+                                      downloadButton("downloadMetadata", "Download Metadata")
+                                  )
+                                )
         ),
 
         shinydashboard::tabItem(tabName = "rdaPlot",
-                fluidRow(
-                  box(
-                    title = "RDA Plot Settings",
-                    width = 12,
-                    status = "primary",
-                    actionButton(
-                      "show_rda_explanation",
-                      label = NULL,
-                      icon = icon("info-circle"),
-                      style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
-                    selectInput("taxRankRDA", "Select Taxonomic Rank", choices = NULL),
-                    selectInput("normMethod", "Select Normalization Method", choices = c("compositional", "hellinger", "log10", "log10p",
-                                                                                         "identity", "clr")),
-                    selectInput("RDAdistanceMetric", "Distance Metric", choices = c("bray", "jaccard")),
-                    selectInput("constraints", "Select Constraints", choices = NULL, multiple = TRUE),
-                    selectInput("conditions", "Select Conditions", choices = NULL, multiple = TRUE, selected = NULL),
-                    selectInput("colorBy", "Color By", choices = NULL),
-                    selectInput("shapeBy", "Select Shape Column", choices = NULL),
-                    actionButton("plotRDA", "Plot RDA"),
-                    plotOutput("rdaPlot", height = "800px", width = "100%"),  # Use plotOutput for ggplot
-                    selectInput("rda_filetype", "Select file type", choices = c("pdf", "png", "svg", "jpeg")),
-                    downloadButton("download_rdaPlot", "Download Plot")
-                  )
-                ),
-                fluidRow(
-                  box(
-                    title = "CAP Analysis Statistics",
-                    width = 12,
-                    status = "primary",
-                    tabsetPanel(
-                      tabPanel("Summary", DTOutput("inertiaTable"), downloadButton("downloadInertia", "Download Summary")),
-                      tabPanel("Eigenvalues", DTOutput("eigenTable"), downloadButton("downloadEigen", "Download Eigenvalues")),
-                      tabPanel("Adjusted R^2", DTOutput("r2Table"), downloadButton("downloadR2", "Download Adjusted R^2")),
-                      tabPanel("Regression Coefficients", DTOutput("coeffTable"), downloadButton("downloadCoeff", "Download Coefficients")),
-                      tabPanel("Site Scores", DTOutput("siteScoresTable"), downloadButton("downloadSiteScores", "Download Site Scores")),
-                      tabPanel("Species Scores", DTOutput("speciesScoresTable"), downloadButton("downloadSpeciesScores", "Download Species Scores")),
-                      tabPanel("ANOVA Overall", DTOutput("anovaOverallTable"), downloadButton("downloadAnovaOverall", "Download Overall ANOVA")),
-                      tabPanel("ANOVA Terms", DTOutput("anovaTermsTable"), downloadButton("downloadAnovaTerms", "Download ANOVA Terms")),
-                      tabPanel("ANOVA Axes", DTOutput("anovaAxesTable"), downloadButton("downloadAnovaAxes", "Download ANOVA Axes"))
-                    )
-                  )
-                )
+                                fluidRow(
+                                  shinydashboard::box(
+                                    title = "RDA Plot Settings",
+                                    width = 12,
+                                    status = "primary",
+                                    actionButton(
+                                      "show_rda_explanation",
+                                      label = NULL,
+                                      icon = icon("info-circle"),
+                                      style = "color: #31708f; border: none; background: none; font-size: 30px; padding: 10px; width: 50px; height: 50px;"),
+                                    selectInput("taxRankRDA", "Select Taxonomic Rank", choices = NULL),
+                                    selectInput("normMethod", "Select Normalization Method", choices = c("compositional", "hellinger", "log10", "log10p",
+                                                                                                         "identity", "clr")),
+                                    selectInput("RDAdistanceMetric", "Distance Metric", choices = c("bray", "jaccard")),
+                                    selectInput("constraints", "Select Constraints", choices = NULL, multiple = TRUE),
+                                    selectInput("conditions", "Select Conditions", choices = NULL, multiple = TRUE, selected = NULL),
+                                    selectInput("colorBy", "Color By", choices = NULL),
+                                    selectInput("shapeBy", "Select Shape Column", choices = NULL),
+                                    actionButton("plotRDA", "Plot RDA"),
+                                    plotOutput("rdaPlot", height = "800px", width = "100%"),  # Use plotOutput for ggplot
+                                    selectInput("rda_filetype", "Select file type", choices = c("pdf", "png", "svg", "jpeg")),
+                                    downloadButton("download_rdaPlot", "Download Plot")
+                                  )
+                                ),
+                                fluidRow(
+                                  shinydashboard::box(
+                                    title = "CAP Analysis Statistics",
+                                    width = 12,
+                                    status = "primary",
+                                    tabsetPanel(
+                                      tabPanel("Summary", DTOutput("inertiaTable"), downloadButton("downloadInertia", "Download Summary")),
+                                      tabPanel("Eigenvalues", DTOutput("eigenTable"), downloadButton("downloadEigen", "Download Eigenvalues")),
+                                      tabPanel("Adjusted R^2", DTOutput("r2Table"), downloadButton("downloadR2", "Download Adjusted R^2")),
+                                      tabPanel("Regression Coefficients", DTOutput("coeffTable"), downloadButton("downloadCoeff", "Download Coefficients")),
+                                      tabPanel("Site Scores", DTOutput("siteScoresTable"), downloadButton("downloadSiteScores", "Download Site Scores")),
+                                      tabPanel("Species Scores", DTOutput("speciesScoresTable"), downloadButton("downloadSpeciesScores", "Download Species Scores")),
+                                      tabPanel("ANOVA Overall", DTOutput("anovaOverallTable"), downloadButton("downloadAnovaOverall", "Download Overall ANOVA")),
+                                      tabPanel("ANOVA Terms", DTOutput("anovaTermsTable"), downloadButton("downloadAnovaTerms", "Download ANOVA Terms")),
+                                      tabPanel("ANOVA Axes", DTOutput("anovaAxesTable"), downloadButton("downloadAnovaAxes", "Download ANOVA Axes"))
+                                    )
+                                  )
+                                )
         )
       ) # End of tabItems
     ) # End of dashboardBody

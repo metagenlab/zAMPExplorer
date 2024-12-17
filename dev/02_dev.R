@@ -18,31 +18,44 @@
 ## install.packages('attachment') # if needed.
 attachment::att_amend_desc()
 
+# Add necessary dependencies
+usethis::use_package("ComplexHeatmap")
+usethis::use_package("InteractiveComplexHeatmap")
+usethis::use_package("microbiome")
+usethis::use_package("MicrobiotaProcess")
+usethis::use_package("phyloseq")
+usethis::use_package("writexl")
+usethis::use_package("shinyFiles")
+usethis::use_package("magrittr")
+usethis::use_package("ggplot2")
+usethis::use_package("tibble", type = "Suggests")
+utils::globalVariables(c(".", "hue", "shade", "padHue", "nChrHue", "cluster"))
+
 ## Add modules ----
 ## Create a module infrastructure in R/
-golem::add_module(name = "name_of_module1", with_test = TRUE) # Name of the module
-golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
+# golem::add_module(name = "name_of_module1", with_test = TRUE) # Name of the module
+# golem::add_module(name = "name_of_module2", with_test = TRUE) # Name of the module
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
-golem::add_fct("helpers", with_test = TRUE)
-golem::add_utils("helpers", with_test = TRUE)
+# golem::add_fct("helpers", with_test = TRUE)
+# golem::add_utils("helpers", with_test = TRUE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www
-golem::add_js_file("script")
-golem::add_js_handler("handlers")
-golem::add_css_file("custom")
-golem::add_sass_file("custom")
-golem::add_any_file("file.json")
+# golem::add_js_file("script")
+# golem::add_js_handler("handlers")
+# golem::add_css_file("custom")
+# golem::add_sass_file("custom")
+# golem::add_any_file("file.json")
 
 ## Add internal datasets ----
 ## If you have data in your package
-usethis::use_data_raw(name = "my_dataset", open = FALSE)
+#usethis::use_data_raw(name = "my_dataset", open = FALSE)
 
 ## Tests ----
 ## Add one line by test you want to create
-usethis::use_test("app")
+usethis::use_test("zAMPExplorer")
 
 # Documentation
 
@@ -84,6 +97,6 @@ usethis::use_jenkins()
 # GitLab CI
 usethis::use_gitlab_ci()
 
-# You're now set! ----
+
 # go to dev/03_deploy.R
 rstudioapi::navigateToFile("dev/03_deploy.R")

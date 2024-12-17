@@ -6,8 +6,34 @@
 #' @param input,output,session Default Shiny server parameters.
 #' @return None. This function is called for its side effects.
 #' @import shiny
-#' @importFrom dplyr select filter
+#' @importFrom ggplot2 ggplot aes geom_bar geom_histogram geom_boxplot theme arrow unit labs element_text margin ggtitle scale_y_log10 ggsave geom_jitter
+#' @importFrom utils combn write.csv write.table
+#' @importFrom DT datatable DTOutput
+#' @importFrom plotly plotlyOutput renderPlotly ggplotly config subplot
+#' @importFrom InteractiveComplexHeatmap InteractiveComplexHeatmapOutput
+#' @importFrom MicrobiotaProcess ggrarecurve get_upset
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom phyloseq phyloseq distance otu_table sample_data rank_names sample_variables taxa_sums nsamples tax_table prune_samples sample_sums sample_names sample_data phy_tree ntaxa
+#' @importFrom dplyr filter mutate select
+#' @importFrom tidyr pivot_longer pivot_wider
+#' @importFrom vegan capscale adonis vegdist scores
+#' @importFrom writexl write_xlsx
+#' @importFrom microbiome transform aggregate_taxa core core_members
+#' @importFrom grDevices colorRampPalette dev.off pdf png svg
+#' @importFrom graphics layout legend lines
+#' @importFrom stats anova as.formula coef median p.adjust quantile setNames update wilcox.test
+#' @importFrom shinyFiles shinyFilesButton shinyDirButton parseDirPath
+#' @importFrom shinyWidgets pickerInput
+#' @importFrom magrittr %>%
+#' @importFrom reshape2 melt
+#' @importFrom shinydashboard dashboardPage box
+#' @importFrom DirichletMultinomial fitted
+#' @importFrom tibble rownames_to_column
+#' @importFrom microViz comp_barplot tax_sort tax_agg tt_get otu_get ps_get tax_mutate tax_transform distinct_palette sampleAnnotation anno_sample_cat heat_palette taxAnnotation
+
+
 #' @noRd
+
 
 
 app_server <- function(input, output, session) {
@@ -18,12 +44,12 @@ app_server <- function(input, output, session) {
     pseq <- readRDS(input$physeqFile$datapath)
 
     # Preprocess the phyloseq object
-    pseq <- prune_samples(sample_sums(pseq) > 0, pseq)
-    pseq <- prune_taxa(taxa_sums(pseq) > 0, pseq)
+    pseq <- phyloseq::prune_samples(sample_sums(pseq) > 0, pseq)
+    pseq <- phyloseq::prune_taxa(taxa_sums(pseq) > 0, pseq)
 
     # Drop existing diversity metrics from sample data
     drop <- c("Observed", "Chao1", "se.chao1", "ACE", "se.ACE", "Shannon", "Simpson", "InvSimpson", "Fisher", "Observed_min_1")
-    sample_data(pseq) <- sample_data(pseq)[, !(names(sample_data(pseq)) %in% drop)]
+    phyloseq::sample_data(pseq) <- phyloseq::sample_data(pseq)[, !(names(phyloseq::sample_data(pseq)) %in% drop)]
 
     return(pseq)  # Return the processed phyloseq object
   })
@@ -40,6 +66,7 @@ app_server <- function(input, output, session) {
   if (!requireNamespace("microViz", quietly = TRUE)) {
     stop("The package 'microViz' is required for this functionality. Please install it using install.packages('microViz').")
   }
+
 
 
   # Update downstream components based on the uploaded phyloseq object
@@ -118,16 +145,17 @@ app_server <- function(input, output, session) {
     output_view("summary_statistics")
   })
 
-  observeEvent(input$show_phylogenetic_tree, {
-    output_view("phylogenetic_tree")
-  })
 
   observeEvent(input$show_combined_table, {
     output_view("combined_table")
   })
 
   # Show the selected data section
+
   output$dynamic_tables <- renderUI({
+    req(output_view())  # Ensure the button was clicked
+    req(physeq())       # Ensure physeq() is initialized
+
     if (output_view() == "metadata") {
       fluidRow(
         box(title = "Metadata Structure", width = 12, status = "primary",
@@ -137,11 +165,8 @@ app_server <- function(input, output, session) {
     } else if (output_view() == "combined_table") {
       fluidRow(
         box(title = "Abundance/Taxonomy Table", width = 12, status = "primary",
-            # Display combined table
             DT::dataTableOutput("combined_table"),
-            # File format selection for download (under the table)
             selectInput("filetype", "Choose file type:", choices = c("csv", "xlsx", "tsv")),
-            # Download button for the combined table
             downloadButton("download_combined_table", "Download Abundance/Taxonomy Table")
         )
       )
@@ -151,18 +176,26 @@ app_server <- function(input, output, session) {
             DT::dataTableOutput("summary_statistics")
         )
       )
-
+    } else {
+      # Placeholder to prevent errors
+      fluidRow(
+        box(title = "No Data", width = 12, status = "warning",
+            p("Please upload a valid phyloseq object and select an option.")
+        )
+      )
     }
-
   })
 
 
 
   # Render Metadata Structure when button is clicked
   output$metadata_structure <- DT::renderDT({
-    req(output_view() == "metadata")
-    as.data.frame(sample_data(physeq()))
+    req(physeq())  # Ensure physeq is loaded
+    req(output_view() == "metadata")  # Ensure correct tab is active
+
+    as.data.frame(phyloseq::sample_data(physeq()))
   }, options = list(pageLength = 10, scrollX = TRUE))
+
 
   # Store the combined table in a reactive expression to avoid duplication
   combined_table <- reactive({
@@ -188,7 +221,14 @@ app_server <- function(input, output, session) {
 
   # Render Combined Abundance/Taxonomy Table
   output$combined_table <- DT::renderDT({
-    req(output_view() == "combined_table")
+    req(physeq())  # Ensure physeq is initialized
+    req(output_view() == "combined_table")  # Ensure the correct button is active
+
+    validate(
+      need(!is.null(phyloseq::otu_table(physeq())), "Error: OTU table is missing.")
+    )
+
+    # Render the combined table
     DT::datatable(combined_table(), options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
 
@@ -211,10 +251,14 @@ app_server <- function(input, output, session) {
     }
   )
 
-
   # Render Summary Statistics
   output$summary_statistics <- DT::renderDT({
-    req(output_view() == "summary_statistics")
+    req(physeq())
+    validate(
+      need(!is.null(physeq()), "Error: No phyloseq object found."),
+      need(!is.null(phyloseq::tax_table(physeq())), "Error: Taxonomy table is missing.")
+    )
+
     num_samples <- nsamples(physeq())
     num_asvs <- ntaxa(physeq())
     num_phylum <- length(unique(phyloseq::tax_table(physeq())[,"Phylum"]))
@@ -229,6 +273,26 @@ app_server <- function(input, output, session) {
 
     DT::datatable(summary_df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
   })
+
+
+
+
+  # output$summary_statistics <- DT::renderDT({
+  #   req(output_view() == "summary_statistics")
+  #   num_samples <- nsamples(physeq())
+  #   num_asvs <- ntaxa(physeq())
+  #   num_phylum <- length(unique(phyloseq::tax_table(physeq())[,"Phylum"]))
+  #   num_family <- length(unique(phyloseq::tax_table(physeq())[,"Family"]))
+  #   num_genus <- length(unique(phyloseq::tax_table(physeq())[,"Genus"]))
+  #   num_species <- length(unique(phyloseq::tax_table(physeq())[,"Species"]))
+  #
+  #   summary_df <- data.frame(
+  #     "Metric" = c("Number of Samples", "Number of ASVs", "Number of Phyla", "Number of Families", "Number of Genera", "Number of Species"),
+  #     "Count" = c(num_samples, num_asvs, num_phylum, num_family, num_genus, num_species)
+  #   )
+  #
+  #   DT::datatable(summary_df, options = list(pageLength = 10, scrollX = TRUE), rownames = FALSE)
+  # })
 
 
 
@@ -336,12 +400,12 @@ app_server <- function(input, output, session) {
   # Render Reads Distribution Plot Across Samples
   output$reads_distribution_plot_samples <- renderPlotly({
     req(physeq())
-    reads_per_sample <- sample_sums(physeq())
+    reads_per_sample <- phyloseq::sample_sums(physeq())
     p <- ggplot2::ggplot(data.frame(Reads = reads_per_sample), aes(x = Reads)) +
-      geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
-      labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-      theme_minimal()
-    ggplotly(p)
+      ggplot2::geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
+      ggplot2::labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
+      ggplot2::theme_minimal()
+    plotly::ggplotly(p)
   })
 
   # Download handler for Reads Distribution Across Samples plot
@@ -351,12 +415,12 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       p <- ggplot2::ggplot(data.frame(Reads = sample_sums(physeq())), aes(x = Reads)) +
-        geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
-        labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
-        theme_minimal()
+        ggplot2::geom_histogram(binwidth = 10000, fill = "blue", color = "black", alpha = 0.7) +
+        ggplot2::labs(title = "Reads Distribution Across Samples", x = "Number of Reads", y = "Frequency") +
+        ggplot2::theme_minimal()
 
-      # Use ggsave with the specified device
-      ggsave(filename = file, plot = p, device = input$plot_filetype_samples, width = input$plot_width_samples, height = input$plot_height_samples)
+      # Use ggplot2::ggsave with the specified device
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_samples, width = input$plot_width_samples, height = input$plot_height_samples)
     }
   )
 
@@ -373,26 +437,26 @@ app_server <- function(input, output, session) {
 
     reads_df <- data.frame(
       Sample = sample_names(physeq()),
-      Group = sample_data(physeq())[[input$group_column]],
+      Group = phyloseq::sample_data(physeq())[[input$group_column]],
       Reads = sample_sums(physeq())
     )
 
     p <- ggplot2::ggplot(reads_df, aes(x = Group, y = Reads, fill = Group)) +
-      geom_boxplot(alpha = 0.7, outlier.color = "red") +
-      geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)),
+      ggplot2::geom_boxplot(alpha = 0.7, outlier.color = "red") +
+      ggplot2::geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)),
                   color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
-      labs(
+      ggplot2::labs(
         title = "Reads Distribution per Sample Group",
         x = "Group",
         y = "Number of Reads"
       ) +
-      theme_minimal() +
+      ggplot2::theme_minimal() +
       theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        plot.margin = margin(20, 20, 20, 20)  # Add margins around the plot
+        axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+        plot.margin = ggplot2::margin(20, 20, 20, 20)  # Add margins around the plot
       )
 
-    ggplotly(p, tooltip = "text")
+    plotly::ggplotly(p, tooltip = "text")
   })
 
 
@@ -404,17 +468,17 @@ app_server <- function(input, output, session) {
     content = function(file) {
       # Regenerate the ggplot2 object
       req(physeq(), input$group_column)
-      reads_df <- data.frame(Sample = sample_names(physeq()), Group = sample_data(physeq())[[input$group_column]], Reads = sample_sums(physeq()))
+      reads_df <- data.frame(Sample = sample_names(physeq()), Group = phyloseq::sample_data(physeq())[[input$group_column]], Reads = sample_sums(physeq()))
 
       p <- ggplot2::ggplot(reads_df, aes(x = Group, y = Reads, fill = Group)) +
-        geom_boxplot(alpha = 0.7, outlier.color = "red") +
-        geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)), color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
-        labs(title = "Reads Distribution per Sample Group", x = "Group", y = "Number of Reads") +
-        theme_minimal() +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        ggplot2::geom_boxplot(alpha = 0.7, outlier.color = "red") +
+        ggplot2::geom_jitter(aes(text = paste("Sample:", Sample, "<br>Reads:", Reads)), color = "black", size = 1.5, width = 0.2, alpha = 0.6) +
+        ggplot2::labs(title = "Reads Distribution per Sample Group", x = "Group", y = "Number of Reads") +
+        ggplot2::theme_minimal() +
+        theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-      # Use ggsave with the specified device and dimensions
-      ggsave(filename = file, plot = p, device = input$plot_filetype_groups, width = input$plot_width_groups, height = input$plot_height_groups)
+      # Use ggplot2::ggsave with the specified device and dimensions
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_groups, width = input$plot_width_groups, height = input$plot_height_groups)
     }
   )
 
@@ -444,12 +508,12 @@ app_server <- function(input, output, session) {
 
     # Apply filtering on the phyloseq object
     filtered <- physeq() %>%
-      prune_samples(sample_sums(.) >= input$reads_threshold, .) %>%
-      prune_taxa(taxa_sums(.) > 0, .)
+      phyloseq::prune_samples(sample_sums(.) >= input$reads_threshold, .) %>%
+      phyloseq::prune_taxa(taxa_sums(.) > 0, .)
 
     if (!is.null(input$sample_name_filter) && length(input$sample_name_filter) > 0) {
-      filtered <- prune_samples(!sample_names(filtered) %in% input$sample_name_filter, filtered)
-      filtered <- prune_taxa(taxa_sums(filtered) > 0, filtered)
+      filtered <- phyloseq::prune_samples(!sample_names(filtered) %in% input$sample_name_filter, filtered)
+      filtered <- phyloseq::prune_taxa(taxa_sums(filtered) > 0, filtered)
     }
 
     # Update the reactive variable to hold the filtered phyloseq object
@@ -479,11 +543,11 @@ app_server <- function(input, output, session) {
     samples_df <- data.frame(Sample = sample_names(current_physeq()), Reads = reads_per_sample)
 
     p <- ggplot2::ggplot(samples_df, aes(x = Sample, y = Reads)) +
-      geom_bar(stat = "identity", fill = "steelblue") +
-      labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
-      theme_minimal() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
+      ggplot2::labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
+      ggplot2::theme_minimal() + theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
 
-    ggplotly(p)
+    plotly::ggplotly(p)
   })
 
   # Download handler for Reads per Sample plot using `current_physeq()`
@@ -494,14 +558,15 @@ app_server <- function(input, output, session) {
       samples_df <- data.frame(Sample = sample_names(current_physeq()), Reads = reads_per_sample)
 
       p <- ggplot2::ggplot(samples_df, aes(x = Sample, y = Reads)) +
-        geom_bar(stat = "identity", fill = "steelblue") +
-        labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
-        theme_minimal() +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+        ggplot2::geom_bar(stat = "identity", fill = "steelblue") +
+        ggplot2::labs(title = "Total Number of Reads per Sample", x = "Sample", y = "Total Reads") +
+        ggplot2::theme_minimal() +
+        theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))
 
-      ggsave(filename = file, plot = p, device = input$plot_filetype_reads, width = input$plot_width_reads, height = input$plot_height_reads)
+      ggplot2::ggsave(filename = file, plot = p, device = input$plot_filetype_reads, width = input$plot_width_reads, height = input$plot_height_reads)
     }
   )
+
 
 
 
@@ -509,32 +574,13 @@ app_server <- function(input, output, session) {
   rarefaction_data <- reactive({
     req(current_physeq())  # Ensure phyloseq object is loaded
 
+    physeq <- current_physeq()
+
     # Validate that a grouping column has been selected
     validate(
       need(input$group_column != "", "Please select a grouping column to generate the plot.")
     )
 
-    # Filter samples with sufficient reads
-    filtered_physeq <- prune_samples(sample_sums(current_physeq()) >= 100, current_physeq())  # Keep samples with at least 100 reads
-
-    # Check if filtering removed all samples
-    if (nsamples(filtered_physeq) == 0) {
-      showNotification("No samples have sufficient reads for rarefaction. Please check your data.", type = "error")
-      return(NULL)
-    }
-
-    # Adjust chunk size based on minimum read count
-    min_count <- min(sample_sums(filtered_physeq))
-    chunk_size <- ifelse(min_count < 99, min_count, 99)
-
-    # Generate rarefaction curve data
-    set.seed(1024)
-    tryCatch({
-      get_rarecurve(obj = filtered_physeq, chunks = chunk_size)
-    }, error = function(e) {
-      showNotification("Error generating rarefaction curves. Please check data and chunk size.", type = "error")
-      NULL
-    })
   })
 
 
@@ -542,23 +588,25 @@ app_server <- function(input, output, session) {
   rarefaction_plot <- reactive({
     req(current_physeq(), input$group_column)  # Ensure phyloseq object and group column are selected
 
+    physeq <- current_physeq()
     # Generate the rarefaction data
     rareres <- rarefaction_data()  # Use the reactive rarefaction data
 
     # Create the ggplot2 rarefaction plot
-    prare2 <- ggrarecurve(
-      obj = rareres,
-      factorNames = input$group_column,
-      shadow = FALSE,
-      indexNames = c("Observe", "Chao1", "ACE")
+    prare <- MicrobiotaProcess::ggrarecurve(physeq,
+                         indexNames=c("Observe","Chao1","ACE"),
+                         shadow=TRUE,
+                         factorNames=input$group_column,
     ) +
+      theme(legend.spacing.y=unit(0.02,"cm"),
+            legend.text=element_text(size=6)) +
       scale_color_manual(values = colorRampPalette(brewer.pal(12, "Paired"))(20))+
       theme_bw() +
       theme(
-        axis.text = element_text(size = 8),
-        panel.grid = element_blank(),
-        strip.background = element_rect(colour = NA, fill = "grey"),
-        strip.text.x = element_text(face = "bold")
+        axis.text = ggplot2::element_text(size = 8),
+        panel.grid = ggplot2::element_blank(),
+        strip.background = ggplot2::element_rect(colour = NA, fill = "grey"),
+        strip.text.x = ggplot2::element_text(face = "bold")
       )
 
     prare2  # Return the ggplot object
@@ -575,8 +623,8 @@ app_server <- function(input, output, session) {
       paste0("rarefaction_curves_", Sys.Date(), ".", input$plot_filetype_groups)
     },
     content = function(file) {
-      # Use ggsave to save the plot generated by the reactive expression
-      ggsave(
+      # Use ggplot2::ggsave to save the plot generated by the reactive expression
+      ggplot2::ggsave(
         filename = file,
         plot = rarefaction_plot(),  # Use the reactive plot directly
         device = input$plot_filetype_groups,
@@ -585,8 +633,6 @@ app_server <- function(input, output, session) {
       )
     }
   )
-
-
 
 
 
@@ -784,7 +830,7 @@ app_server <- function(input, output, session) {
 
     # Get the OTU table and the grouping variable
     otu_table_agg <- as.data.frame(otu_table(physeq_agg))
-    groups <- as.factor(sample_data(physeq_agg)[[group_column]])
+    groups <- as.factor(phyloseq::sample_data(physeq_agg)[[group_column]])
 
     # Calculate prevalence within each group with rounding to two decimal places
     prevalence_list <- lapply(levels(groups), function(group) {
@@ -846,8 +892,8 @@ app_server <- function(input, output, session) {
       # Create the dominant taxa plot
       p <- microViz::comp_barplot(physeq_dominant, tax_level = taxa_level, facet_by = input$group_column,
                                   label = paste("dominant", taxa_level, sep = "_"), n_taxa = n_max) +
-        coord_flip() +
-        labs(title = paste("Dominant Taxa Composition in each Sample"))
+        ggplot2::coord_flip() +
+        ggplot2::labs(title = paste("Dominant Taxa Composition in each Sample"))
 
       # Store the plot in the reactive value
       dominant_taxa_barplot_reactive(p)
@@ -874,7 +920,7 @@ app_server <- function(input, output, session) {
       req(p)  # Ensure that the plot exists
 
       # Save the plot to the specified file
-      ggsave(file, plot = p, device = "png", width = 8, height = 6)
+      ggplot2::ggsave(file, plot = p, device = "png", width = 8, height = 6)
     }
   )
 
@@ -908,10 +954,10 @@ app_server <- function(input, output, session) {
 
     # Create the ggplot object
     p <- ggplot2::ggplot(plot_df, aes(x = Prevalence, y = Abundance, color = Phylum, label = Genus)) +
-      geom_point(size = 3, alpha = 0.8) +
-      scale_y_log10() +  # Log scale for abundance
-      theme_minimal() +
-      labs(title = "Prevalence vs Abundance", x = "Prevalence (%)", y = "Abundance") +
+      ggplot2::geom_point(size = 3, alpha = 0.8) +
+      ggplot2::scale_y_log10() +  # Log scale for abundance
+      ggplot2::theme_minimal() +
+      ggplot2::labs(title = "Prevalence vs Abundance", x = "Prevalence (%)", y = "Abundance") +
       theme(legend.position = "right")
 
     return(p)
@@ -919,7 +965,7 @@ app_server <- function(input, output, session) {
 
   # Render the plot
   output$prevalence_abundance_plot <- renderPlotly({
-    ggplotly(prevalence_abundance_plot())  # Convert the ggplot object to an interactive plotly object
+    plotly::ggplotly(prevalence_abundance_plot())  # Convert the ggplot object to an interactive plotly object
   })
 
   # Download handler for Prevalence vs Abundance Plot
@@ -929,7 +975,7 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       # Reuse the ggplot object stored in the reactive expression
-      ggsave(file, plot = prevalence_abundance_plot(),
+      ggplot2::ggsave(file, plot = prevalence_abundance_plot(),
              device = input$plot_filetype_groups,  # Dynamic file type
              width = input$plot_width_groups,      # Dynamic width
              height = input$plot_height_groups)    # Dynamic height
@@ -962,17 +1008,17 @@ app_server <- function(input, output, session) {
     }
 
     # Check for missing values in the grouping column
-    if (any(is.na(sample_data(physeq_core)[[group_var]]))) {
+    if (any(is.na(phyloseq::sample_data(physeq_core)[[group_var]]))) {
       stop("The selected grouping column contains missing values. Please choose a different column or remove missing values.")
     }
 
     # Use get_upset to generate the binary matrix for upset plot
-    upset_data <- get_upset(physeq_core, factorNames = group_var)
+    upset_data <- MicrobiotaProcess::get_upset(physeq_core, factorNames = group_var)
 
     # Create the upset plot using sample groupings
     upset_plot <- UpSetR::upset(
       upset_data,
-      sets = unique(as.vector(sample_data(physeq_core)[[group_var]])),  # Grouping by sample data
+      sets = unique(as.vector(phyloseq::sample_data(physeq_core)[[group_var]])),  # Grouping by sample data
       sets.bar.color = "#56B4E9",
       keep.order = TRUE,              # Keep the order of the sets
       order.by = "freq",              # Order by frequency of occurrence
@@ -1052,7 +1098,7 @@ app_server <- function(input, output, session) {
       fluidRow(
         box(title = "Venn Diagram - Unique and Shared Taxa", width = 12, status = "primary",
             selectInput("taxonomy_level", "Select Taxonomy Level", choices = rank_names(current_physeq())),
-            selectInput("grouping_column_venn", "Select Grouping Column", choices = colnames(sample_data(current_physeq()))),
+            selectInput("grouping_column_venn", "Select Grouping Column", choices = colnames(phyloseq::sample_data(current_physeq()))),
             numericInput("detection_threshold_venn", "Detection Threshold", value = 0.001, min = 0, max = 1, step = 0.001),
             numericInput("prevalence_threshold_venn", "Prevalence Threshold", value = 0.1, min = 0, max = 1, step = 0.01),
             plotOutput("venn_diagram_plot", height = "600px", width = "100%"),
@@ -1083,10 +1129,10 @@ app_server <- function(input, output, session) {
     req(current_physeq(), input$taxonomy_level, input$detection_threshold_venn, input$prevalence_threshold_venn, input$grouping_column_venn)
 
     # Validate grouping column existence and handle missing values
-    if (!input$grouping_column_venn %in% colnames(sample_data(current_physeq()))) {
+    if (!input$grouping_column_venn %in% colnames(phyloseq::sample_data(current_physeq()))) {
       stop("Selected grouping column does not exist in the sample data.")
     }
-    if (any(is.na(sample_data(current_physeq())[[input$grouping_column_venn]]))) {
+    if (any(is.na(phyloseq::sample_data(current_physeq())[[input$grouping_column_venn]]))) {
       stop("The selected grouping column contains missing values. Please choose a different column or clean the data.")
     }
 
@@ -1102,7 +1148,7 @@ app_server <- function(input, output, session) {
 
     # Extract OTU data and metadata
     otu_data <- as(otu_table(physeq_core), "matrix")
-    meta_data <- data.frame(sample_data(physeq_core))
+    meta_data <- data.frame(phyloseq::sample_data(physeq_core))
     sample_groups <- unique(meta_data[[input$grouping_column_venn]])
 
     # Create list of OTUs for each group with enhanced taxonomy names
@@ -1135,12 +1181,12 @@ app_server <- function(input, output, session) {
   venn_plot_reactive <- reactive({
     group_otus <- group_otus_reactive()
 
-    venn_plot <- ggvenn(
+    venn_plot <- ggvenn::ggvenn(
       group_otus,
       fill_color = c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF", "darkgreen", "orchid4"),
       stroke_size = 0.5, set_name_size = 4
     ) +
-      ggtitle(paste("Venn Diagram - Unique and Shared", input$taxonomy_level))
+      ggplot2::ggtitle(paste("Venn Diagram - Unique and Shared", input$taxonomy_level))
 
     return(venn_plot)
   })
@@ -1157,7 +1203,7 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       venn_plot <- venn_plot_reactive()
-      ggsave(file, plot = venn_plot, device = input$plot_filetype_venn,
+      ggplot2::ggsave(file, plot = venn_plot, device = input$plot_filetype_venn,
              width = input$plot_width_venn, height = input$plot_height_venn)
     }
   )
@@ -1282,17 +1328,17 @@ app_server <- function(input, output, session) {
     shadeRank <- input$shadeRank
 
     pseq2 <- current_physeq() %>%
-      tax_sort(by = sum, at = shadeRank) %>%
-      tax_sort(by = sum, at = hueRank) %>%
-      tax_agg(rank = shadeRank)
+      microViz::tax_sort(by = sum, at = shadeRank) %>%
+      microViz::tax_sort(by = sum, at = hueRank) %>%
+      microViz::tax_agg(rank = shadeRank)
 
     nHues <- input$nHues
     nShades <- input$nShades
 
     hierarchicalPalInfo <- data.frame(
-      hue = as.vector(tt_get(pseq2)[, hueRank]),
-      shade = as.vector(tt_get(pseq2)[, shadeRank]),
-      counts = taxa_sums(otu_get(pseq2))
+      hue = as.vector(microViz::tt_get(pseq2)[, hueRank]),
+      shade = as.vector(microViz::tt_get(pseq2)[, shadeRank]),
+      counts = phyloseq::taxa_sums(microViz::otu_get(pseq2))
     )
 
     hierarchicalPalInfo <- hierarchicalPalInfo %>%
@@ -1317,23 +1363,23 @@ app_server <- function(input, output, session) {
       )
 
     unique_taxa <- unique(hierarchicalPalInfo$Taxa)
-    palette_colors <- colorRampPalette(brewer.pal(12, "Set3"))(length(unique_taxa))
+    palette_colors <- colorRampPalette(RColorBrewer::brewer.pal(12, "Set3"))(length(unique_taxa))
     names(palette_colors) <- unique_taxa
 
     facet_by <- if (input$facetBy == "None") NULL else input$facetBy
 
     p <- pseq2 %>%
-      ps_get() %>%
-      tax_mutate("Taxa" = hierarchicalPalInfo$Taxa, .keep = "none") %>%
-      comp_barplot(
+      microViz::ps_get() %>%
+      microViz::tax_mutate("Taxa" = hierarchicalPalInfo$Taxa, .keep = "none") %>%
+      microViz::comp_barplot(
         tax_level = "Taxa", n_taxa = length(palette_colors),
         facet_by = facet_by,
         tax_order = "asis", palette = palette_colors, bar_width = 0.975
       ) +
-      coord_flip() +
-      theme(legend.text = element_text(family = "mono"))
+      ggplot2::coord_flip() +
+      theme(legend.text = ggplot2::element_text(family = "mono"))
 
-    ggplotly(p)
+    plotly::ggplotly(p)
   })
 
   #render the plot UI
@@ -1393,7 +1439,7 @@ app_server <- function(input, output, session) {
         microbiome::transform(current_physeq(), input$normalizationMethod)
       } else {
         # Both normalize and aggregate at the selected taxonomic level
-        tax_transform(current_physeq(), input$normalizationMethod, rank = input$heatmapRank)
+        microViz::tax_transform(current_physeq(), input$normalizationMethod, rank = input$heatmapRank)
       }
     })
 
@@ -1402,37 +1448,48 @@ app_server <- function(input, output, session) {
     req(nrow(otu_table(pseq)) > 0)
 
     # Select top taxa
-    top_taxa <- names(sort(taxa_sums(pseq), decreasing = TRUE))[1:input$topTaxa]
-    psq_normalized_pruned <- prune_taxa(top_taxa, pseq)
+    top_taxa <- names(sort(phyloseq::taxa_sums(pseq), decreasing = TRUE))[1:input$topTaxa]
+    psq_normalized_pruned <- phyloseq::prune_taxa(top_taxa, pseq)
 
     # Define annotation colors dynamically based on the number of unique values
-    unique_vals1 <- unique(sample_data(psq_normalized_pruned)[[input$annotationColumn1]])
-    cols1 <- distinct_palette(n = length(unique_vals1), add = NA)
+    unique_vals1 <- unique(phyloseq::sample_data(psq_normalized_pruned)[[input$annotationColumn1]])
+    cols1 <- microViz::distinct_palette(n = length(unique_vals1), add = NA)
     names(cols1) <- unique_vals1
 
-    unique_vals2 <- unique(sample_data(psq_normalized_pruned)[[input$annotationColumn2]])
-    cols2 <- distinct_palette(n = length(unique_vals2), add = NA)
+    unique_vals2 <- unique(phyloseq::sample_data(psq_normalized_pruned)[[input$annotationColumn2]])
+    cols2 <- microViz::distinct_palette(n = length(unique_vals2), add = NA)
     names(cols2) <- unique_vals2
 
 
     # Prepare sample annotations, with legend title
-    sample_anno <- sampleAnnotation(
-      State1 = anno_sample_cat(input$annotationColumn1, legend_title = input$annotationColumn1),
+    sample_anno <- microViz::sampleAnnotation(
+      State1 = microViz::anno_sample_cat(input$annotationColumn1, legend_title = input$annotationColumn1),
       col = list(State1 = cols1, State2 = cols2), border = FALSE,
-      State2 = anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = input$annotationColumn2),
+      State2 = microViz::anno_sample_cat(input$annotationColumn2, col = cols2, legend_title = input$annotationColumn2),
       annotation_label = c(input$annotationColumn1, input$annotationColumn2)
     )
 
+    # Check if ComplexHeatmap and InteractiveComplexHeatmap are available
+    if (!requireNamespace("ComplexHeatmap", quietly = TRUE) || !requireNamespace("InteractiveComplexHeatmap", quietly = TRUE)) {
+      showNotification("The required packages 'ComplexHeatmap' and 'InteractiveComplexHeatmap' are not installed. Please install them to use this feature.", type = "error")
+      return()
+    }
+
+    if (requireNamespace("microViz", quietly = TRUE)) {
+      # Use microViz-related functionality
+    } else {
+      stop("The 'microViz' package is required for this feature. Please install it.")
+    }
 
     # Generate the heatmap using comp_heatmap
     heatmap_obj <- microViz::comp_heatmap(
       psq_normalized_pruned,
       taxa = top_taxa,
-      tax_anno = taxAnnotation(Prev. = anno_tax_prev(bar_width = 0.3, size = grid::unit(1, "cm"))),
+      tax_anno = microViz::taxAnnotation(Prev. = microViz::anno_tax_prev(bar_width = 0.3, size = grid::unit(1, "cm"))),
       sample_anno = sample_anno,
       sample_seriation = "OLO_ward",
       tax_seriation = "OLO_ward",
-      colors = heat_palette(palette = "Rocket", rev = TRUE),
+      colors = microViz::heat_palette(palette = "Rocket", rev = TRUE),
       cluster_rows = input$clusterRows,
       cluster_columns = input$clusterColumns,
       sample_names_show = TRUE
@@ -1445,7 +1502,7 @@ app_server <- function(input, output, session) {
     )
 
     # Render the interactive heatmap using InteractiveComplexHeatmap
-    makeInteractiveComplexHeatmap(input, output, session, ht1,
+    InteractiveComplexHeatmap::makeInteractiveComplexHeatmap(input, output, session, ht1,
                                   heatmap_id = "relativeAbundanceHeatmap")
   })
 
@@ -1494,11 +1551,11 @@ app_server <- function(input, output, session) {
     }
 
     # Add diversity metrics to sample data
-    meta <- as(sample_data(pseq), "data.frame")
+    meta <- as(phyloseq::sample_data(pseq), "data.frame")
     for (metric in available_metrics) {
       meta[[metric]] <- tab[[metric]]
     }
-    sample_data(pseq) <- sample_data(meta)  # Update sample data in phyloseq
+    phyloseq::sample_data(pseq) <- phyloseq::sample_data(meta)  # Update sample data in phyloseq
 
     # Update selectInput choices
     updateSelectInput(session, "alphaMetric", choices = available_metrics, selected = available_metrics[1])
@@ -1513,7 +1570,7 @@ app_server <- function(input, output, session) {
     req(current_physeq(), input$alphaMetric, input$alphaGroupingColumn)
     pseq <- current_physeq()
 
-    meta <- as(sample_data(pseq), "data.frame")
+    meta <- as(phyloseq::sample_data(pseq), "data.frame")
     plotly_lst <- list()
     ggplot_lst <- list()
 
@@ -1526,23 +1583,23 @@ app_server <- function(input, output, session) {
 
     for (metric in input$alphaMetric) {
       if (metric %in% colnames(meta)) {  # Check if metric exists in meta
-        p <- ggplot2::ggplot(meta, aes_string(x = input$alphaGroupingColumn, y = metric, color = input$alphaGroupingColumn)) +
-          geom_boxplot(outlier.shape = NA, width = 0.4, alpha = 0.75) +
-          geom_jitter(height = 0, width = 0.2, alpha = 0.5, size = 2) +
-          scale_color_manual(values = custom_colors) +
-          theme_minimal(base_size = 15) +
-          labs(y = metric, x = "Groups") +
+        p <- ggplot2::ggplot(meta, ggplot2::aes_string(x = input$alphaGroupingColumn, y = metric, color = input$alphaGroupingColumn)) +
+          ggplot2::geom_boxplot(outlier.shape = NA, width = 0.4, alpha = 0.75) +
+          ggplot2::geom_jitter(height = 0, width = 0.2, alpha = 0.5, size = 2) +
+          ggplot2::scale_color_manual(values = custom_colors) +
+          ggplot2::theme_minimal(base_size = 15) +
+          ggplot2::labs(y = metric, x = "Groups") +
           theme(
             legend.position = "right",
-            plot.title = element_text(hjust = 0.5),
-            axis.title.x = element_blank(),
-            axis.text.x = element_text(angle = 45, hjust = 1),
-            plot.margin = margin(t = 40, r = 40, b = 40, l = 60, unit = "pt")
+            plot.title = ggplot2::element_text(hjust = 0.5),
+            axis.title.x = ggplot2::element_blank(),
+            axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+            plot.margin = ggplot2::margin(t = 40, r = 40, b = 40, l = 60, unit = "pt")
           )
 
         # Store ggplot and plotly versions
         ggplot_lst[[metric]] <- p
-        plotly_lst[[metric]] <- ggplotly(p)
+        plotly_lst[[metric]] <- plotly::ggplotly(p)
       }
     }
 
@@ -1558,12 +1615,12 @@ app_server <- function(input, output, session) {
 
     if (length(plots) == 1) {
       plots[[1]] %>%
-        layout(dragmode = "zoom", margin = list(l = 120, r = 40, t = 40, b = 40), showlegend = TRUE) %>%
-        config(displayModeBar = TRUE, scrollZoom = TRUE)
+        plotly::layout(dragmode = "zoom", margin = list(l = 120, r = 40, t = 40, b = 40), showlegend = TRUE) %>%
+        plotly::config(displayModeBar = TRUE, scrollZoom = TRUE)
     } else {
-      subplot(plots, nrows = ceiling(length(plots) / 2), shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE) %>%
-        layout(dragmode = "zoom", margin = list(l = 120, r = 40, t = 40, b = 40), showlegend = TRUE) %>%
-        config(displayModeBar = TRUE, scrollZoom = TRUE)
+      plotly::subplot(plots, nrows = ceiling(length(plots) / 2), shareX = TRUE, shareY = FALSE, titleX = TRUE, titleY = TRUE) %>%
+        plotly::layout(dragmode = "zoom", margin = list(l = 120, r = 40, t = 40, b = 40), showlegend = TRUE) %>%
+        plotly::config(displayModeBar = TRUE, scrollZoom = TRUE)
     }
   })
 
@@ -1584,13 +1641,13 @@ app_server <- function(input, output, session) {
 
         # Check if `plots` is a list of ggplot objects
         if (length(plots) > 1) {
-          p <- marrangeGrob(plots, ncol = 2, nrow = ceiling(length(plots) / 2))
+          p <- gridExtra::marrangeGrob(plots, ncol = 2, nrow = ceiling(length(plots) / 2))
         } else {
           p <- plots[[1]]  # Single plot case
         }
 
         # Save the plot with ggsave
-        ggsave(
+        ggplot2::ggsave(
           filename = file,
           plot = p,
           width = input$plot_width,
@@ -1613,7 +1670,7 @@ app_server <- function(input, output, session) {
     req(current_physeq(), input$alphaMetric, input$alphaGroupingColumn)
 
     pseq <- current_physeq()
-    meta <- as(sample_data(pseq), "data.frame")
+    meta <- as(phyloseq::sample_data(pseq), "data.frame")
 
     # Define clusters and pairwise comparisons
     clusters <- levels(factor(meta[[input$alphaGroupingColumn]]))
@@ -1740,12 +1797,11 @@ app_server <- function(input, output, session) {
     updateSelectInput(session, "taxRank", choices = rank_names(pseq))
 
     # Update other dropdowns based on sample metadata
-    updateSelectInput(session, "groupingColumnBeta_plotting", choices = colnames(sample_data(pseq)))
-    updateSelectInput(session, "groupingColumnBeta_statistics", choices = colnames(sample_data(pseq)))
-    #updateSelectInput(session, "groupingColumnBeta", choices = colnames(sample_data(pseq)))
-    updateSelectInput(session, "shapeColumnBeta", choices = colnames(sample_data(pseq)))
-    updateSelectInput(session, "selectedVariables", choices = colnames(sample_data(pseq)))
-    updateSelectInput(session, "strata", choices = colnames(sample_data(pseq)))
+    updateSelectInput(session, "groupingColumnBeta_plotting", choices = colnames(phyloseq::sample_data(pseq)))
+    updateSelectInput(session, "groupingColumnBeta_statistics", choices = colnames(phyloseq::sample_data(pseq)))
+    updateSelectInput(session, "shapeColumnBeta", choices = colnames(phyloseq::sample_data(pseq)))
+    updateSelectInput(session, "selectedVariables", choices = colnames(phyloseq::sample_data(pseq)))
+    updateSelectInput(session, "strata", choices = colnames(phyloseq::sample_data(pseq)))
   })
 
 
@@ -1760,16 +1816,16 @@ app_server <- function(input, output, session) {
 
     if (distanceMetric == "jaccard") {
       pseq_transformed <- pseq %>%
-        tax_transform(normalizationMethod, rank = taxRank) %>%
-        dist_calc(dist = "jaccard", binary = TRUE)
+        microViz::tax_transform(normalizationMethod, rank = taxRank) %>%
+        microViz::dist_calc(dist = "jaccard", binary = TRUE)
     } else if (distanceMetric == "bray") {
       pseq_transformed <- pseq %>%
-        tax_transform(normalizationMethod, rank = taxRank) %>%
-        dist_calc(dist = "bray", binary = FALSE)
+        microViz::tax_transform(normalizationMethod, rank = taxRank) %>%
+        microViz::dist_calc(dist = "bray", binary = FALSE)
     } else if (distanceMetric == "robust.aitchison") {
       pseq_transformed <- pseq %>%
-        tax_transform("identity", rank = taxRank) %>%
-        dist_calc(dist = "robust.aitchison")
+        microViz::tax_transform("identity", rank = taxRank) %>%
+        microViz::dist_calc(dist = "robust.aitchison")
     } else {
       stop("Unsupported distance metric selected.")
     }
@@ -1789,13 +1845,13 @@ app_server <- function(input, output, session) {
 
     tryCatch({
       pseq_transformed <- get_transformed_pseq(pseq, input$distanceMetric, input$normalizationMethod, input$taxRank)
-      ordination_res <- ord_calc(pseq_transformed, method = "PCoA")
-      plot <- ord_plot(ordination_res, color = input$groupingColumnBeta_plotting, shape = input$shapeColumnBeta, plot_taxa = 1:5) +
-        stat_ellipse(aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting), linetype = 1, segments = 10, lwd = 1.2, alpha = 0.25, level = 0.6) +
-        scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
-        theme_bw() +
-        ggside::geom_xsideboxplot(aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting), orientation = "y") +
-        ggside::geom_ysideboxplot(aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting), orientation = "x") +
+      ordination_res <- microViz::ord_calc(pseq_transformed, method = "PCoA")
+      plot <- microViz::ord_plot(ordination_res, color = input$groupingColumnBeta_plotting, shape = input$shapeColumnBeta, plot_taxa = 1:5) +
+        ggplot2::stat_ellipse(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting), linetype = 1, segments = 10, lwd = 1.2, alpha = 0.25, level = 0.6) +
+        ggplot2::scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
+        ggplot2::theme_bw() +
+        ggside::geom_xsideboxplot(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting), orientation = "y") +
+        ggside::geom_ysideboxplot(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting), orientation = "x") +
         ggside::scale_xsidey_discrete(labels = NULL) +
         ggside::scale_ysidex_discrete(labels = NULL) +
         ggside::theme_ggside_void()
@@ -1810,7 +1866,7 @@ app_server <- function(input, output, session) {
 
   output$download_PCoAPlot <- downloadHandler(
     filename = function() { paste0("PCoA_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_obj()); ggsave(file, plot = ggplot_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
+    content = function(file) { req(ggplot_obj()); ggplot2::ggsave(file, plot = ggplot_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
   )
 
   # Plotting: PCA
@@ -1819,13 +1875,13 @@ app_server <- function(input, output, session) {
     pseq <- current_physeq()
 
     tryCatch({
-      ordination_res <- pseq %>% tax_transform(input$normalizationMethod, rank = input$taxRank) %>% ord_calc(method = "PCA")
-      plot <- ord_plot(ordination_res, color = input$groupingColumnBeta_plotting, shape = input$shapeColumnBeta, plot_taxa = 1:5) +
-        stat_ellipse(aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting), linetype = 1, segments = 10, lwd = 1.2, alpha = 0.25, level = 0.6) +
-        scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
-        theme_bw() +
-        ggside::geom_xsideboxplot(aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting), orientation = "y") +
-        ggside::geom_ysideboxplot(aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting), orientation = "x") +
+      ordination_res <- pseq %>% microViz::tax_transform(input$normalizationMethod, rank = input$taxRank) %>% microViz::ord_calc(method = "PCA")
+      plot <- microViz::ord_plot(ordination_res, color = input$groupingColumnBeta_plotting, shape = input$shapeColumnBeta, plot_taxa = 1:5) +
+        ggplot2::stat_ellipse(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting), linetype = 1, segments = 10, lwd = 1.2, alpha = 0.25, level = 0.6) +
+        ggplot2::scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
+        ggplot2::theme_bw() +
+        ggside::geom_xsideboxplot(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting), orientation = "y") +
+        ggside::geom_ysideboxplot(ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting), orientation = "x") +
         ggside::scale_xsidey_discrete(labels = NULL) +
         ggside::scale_ysidex_discrete(labels = NULL) +
         ggside::theme_ggside_void()
@@ -1840,7 +1896,7 @@ app_server <- function(input, output, session) {
 
   output$download_PCAPlot <- downloadHandler(
     filename = function() { paste0("PCA_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_pca_obj()); ggsave(file, plot = ggplot_pca_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
+    content = function(file) { req(ggplot_pca_obj()); ggplot2::ggsave(file, plot = ggplot_pca_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype) }
   )
 
 
@@ -1854,7 +1910,7 @@ app_server <- function(input, output, session) {
       pseq_transformed <- get_transformed_pseq(pseq, input$distanceMetric, input$normalizationMethod, input$taxRank)
 
       # Perform NMDS ordination
-      ordination_res <- ord_calc(pseq_transformed, method = "NMDS")
+      ordination_res <- microViz::ord_calc(pseq_transformed, method = "NMDS")
 
       # Print the stress value
       if ("stress" %in% names(ordination_res)) {  # Check if the result has a stress attribute
@@ -1866,28 +1922,28 @@ app_server <- function(input, output, session) {
       }
 
       # Generate NMDS plot
-      plot <- ord_plot(
+      plot <- microViz::ord_plot(
         ordination_res,
         color = input$groupingColumnBeta_plotting,
         shape = input$shapeColumnBeta,
         plot_taxa = 1:5
       ) +
-        stat_ellipse(
-          aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting),
+        ggplot2::stat_ellipse(
+          ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, color = input$groupingColumnBeta_plotting),
           linetype = 1,
           segments = 10,
           lwd = 1.2,
           alpha = 0.25,
           level = 0.6
         ) +
-        scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
-        theme_bw() +
+        ggplot2::scale_colour_brewer(palette = "Dark2", aesthetics = c("fill", "colour")) +
+        ggplot2::theme_bw() +
         ggside::geom_xsideboxplot(
-          aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting),
+          ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, y = input$groupingColumnBeta_plotting),
           orientation = "y"
         ) +
         ggside::geom_ysideboxplot(
-          aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting),
+          ggplot2::aes_string(fill = input$groupingColumnBeta_plotting, x = input$groupingColumnBeta_plotting),
           orientation = "x"
         ) +
         ggside::scale_xsidey_discrete(labels = NULL) +
@@ -1895,7 +1951,7 @@ app_server <- function(input, output, session) {
         ggside::theme_ggside_void()
 
       # Add custom shape palette if needed
-      plot <- plot + scale_shape_manual(values = c(0:6, 15:20))  # Extend shapes if >6 groups
+      plot <- plot + ggplot2::scale_shape_manual(values = c(0:6, 15:20))  # Extend shapes if >6 groups
 
 
       # Render the plot
@@ -1909,7 +1965,7 @@ app_server <- function(input, output, session) {
 
   output$download_NMDSPlot <- downloadHandler(
     filename = function() { paste0("NMDS_beta_diversity_", Sys.Date(), ".", input$beta_filetype) },
-    content = function(file) { req(ggplot_nmds_obj()); ggsave(file, plot = ggplot_nmds_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype)
+    content = function(file) { req(ggplot_nmds_obj()); ggplot2::ggsave(file, plot = ggplot_nmds_obj(), width = input$plot_width, height = input$plot_height, units = "in", device = input$beta_filetype)
     }
   )
 
@@ -1933,7 +1989,7 @@ app_server <- function(input, output, session) {
         otu_table <- t(otu_table)
       }
 
-      meta <- data.frame(sample_data(pseq))  # Metadata as data frame
+      meta <- data.frame(phyloseq::sample_data(pseq))  # Metadata as data frame
 
       # Validate grouping column exists in metadata
       validate(need(input$groupingColumnBeta_statistics %in% colnames(meta),
@@ -1991,7 +2047,7 @@ app_server <- function(input, output, session) {
 
     pseq <- current_physeq()
     validate(need(!is.null(pseq), "Phyloseq object is missing."))
-    validate(need(input$groupingColumnBeta_statistics %in% colnames(sample_data(pseq)), "Selected grouping column not found."))
+    validate(need(input$groupingColumnBeta_statistics %in% colnames(phyloseq::sample_data(pseq)), "Selected grouping column not found."))
 
     tryCatch({
       # Convert phyloseq object to relative abundance
@@ -2005,7 +2061,7 @@ app_server <- function(input, output, session) {
 
       # Distance calculation
       dist <- vegan::vegdist(otu_table, method = input$distanceMetric)
-      grouping_var <- sample_data(pseq_relabund)[[input$groupingColumnBeta_statistics]]
+      grouping_var <- phyloseq::sample_data(pseq_relabund)[[input$groupingColumnBeta_statistics]]
 
       # Beta-dispersion
       dispersion <- vegan::betadisper(dist, grouping_var)
@@ -2045,7 +2101,7 @@ app_server <- function(input, output, session) {
 
     pseq <- current_physeq()
     validate(need(!is.null(pseq), "Phyloseq object is missing."))
-    validate(need(input$groupingColumnBeta_statistics %in% colnames(sample_data(pseq)), "Selected grouping column not found."))
+    validate(need(input$groupingColumnBeta_statistics %in% colnames(phyloseq::sample_data(pseq)), "Selected grouping column not found."))
 
     tryCatch({
       # Convert phyloseq object to relative abundance
@@ -2059,7 +2115,7 @@ app_server <- function(input, output, session) {
 
       # Distance calculation
       dist <- vegan::vegdist(otu_table, method = input$distanceMetric)
-      grouping_var <- sample_data(pseq_relabund)[[input$groupingColumnBeta_statistics]]
+      grouping_var <- phyloseq::sample_data(pseq_relabund)[[input$groupingColumnBeta_statistics]]
 
       # Beta-dispersion
       dispersion <- vegan::betadisper(dist, grouping_var)
@@ -2114,7 +2170,7 @@ app_server <- function(input, output, session) {
 
   observe({
     req(current_physeq())
-    metadata_columns <- colnames(sample_data(current_physeq()))
+    metadata_columns <- colnames(phyloseq::sample_data(current_physeq()))
     updateSelectizeInput(session, "fixed_variables", choices = metadata_columns, selected = NULL)
     updateSelectizeInput(session, "random_variables", choices = metadata_columns, selected = NULL)
   })
@@ -2125,7 +2181,7 @@ app_server <- function(input, output, session) {
 
   # Server logic for folder selection
   observe({
-    shinyDirChoose(input, "select_folder", roots = roots, session = session, allowDirCreate = TRUE) # Enable directory creation
+    shinyFiles::shinyDirChoose(input, "select_folder", roots = roots, session = session, allowDirCreate = TRUE) # Enable directory creation
   })
 
   observeEvent(input$select_folder, {
@@ -2170,7 +2226,7 @@ app_server <- function(input, output, session) {
     ref_variable <- input$reference_variable
 
     # Extract unique levels for the selected variable
-    ref_levels <- unique(as.character(sample_data(current_physeq())[[ref_variable]]))
+    ref_levels <- unique(as.character(phyloseq::sample_data(current_physeq())[[ref_variable]]))
 
     updateSelectInput(
       session,
@@ -2225,7 +2281,7 @@ app_server <- function(input, output, session) {
 
     # Validate inputs
     Count_table <- data.frame(t(otu_table(physeq_agg))) # Transpose OTU table
-    metadata <- data.frame(sample_data(physeq_agg)) # Extract metadata
+    metadata <- data.frame(phyloseq::sample_data(physeq_agg)) # Extract metadata
 
     if (ncol(Count_table) == 0 || nrow(Count_table) == 0) {
       showModal(modalDialog(
@@ -2270,7 +2326,7 @@ app_server <- function(input, output, session) {
       print(paste("Output Folder:", selected_folder))
 
       # Run Maaslin2
-      maaslin_da <- Maaslin2(
+      maaslin_da <- Maaslin2::Maaslin2(
         input_data = Count_table,
         input_metadata = metadata,
         normalization = input$normalization,
@@ -2350,38 +2406,47 @@ app_server <- function(input, output, session) {
 
 
 
-
-
   ############# community typing(DMM)
 
+  if (requireNamespace("tibble", quietly = TRUE)) {
+    tibble::as_tibble(data)
+  } else {
+    stop("The 'tibble' package is required for this functionality. Please install it.")
+  }
 
 
+  generateDriverPlot <- function(bestmodel, physeq, k) {
+    d <- melt(DirichletMultinomial::fitted(bestmodel))
 
-  generateDriverPlot <- function(best, physeq, k) {
-    d <- melt(fitted(best))
     colnames(d) <- c("ASV", "cluster", "value")
+
 
     # Get the tax_table from the phyloseq object
     tax_df <- as.data.frame(phyloseq::tax_table(physeq))
 
+
     # Create a new column combining Genus, Species, and ASV
-    d$Taxa <- with(tax_df[d$ASV, ], paste0(Genus, "_", Species, " (", d$ASV, ")"))
+
+    d_tax_merge <- dplyr::left_join(d, tax_df %>% tibble::rownames_to_column("ASV"), by = "ASV")
+    d <- d_tax_merge %>% dplyr::mutate(Taxa= paste0(Genus, "_", Species, " (", ASV, ")"))
+    #d$Taxa <- with(tax_df[d$ASV, ], paste0(Genus, "_", Species, " (", d$ASV, ")"))
+
 
     # Replace NA values with "Unknown"
     d$Taxa[is.na(d$Taxa)] <- paste0("Unknown (", d$ASV[is.na(d$Taxa)], ")")
 
     # Filter and prepare the data for plotting
     d <- d %>% filter(cluster == k) %>%
-      arrange(value) %>%
+      dplyr::arrange(value) %>%
       mutate(Taxa = factor(Taxa, levels = unique(Taxa))) %>%
       filter(abs(value) > quantile(abs(value), 0.8))
 
     # Create the plot
     ggplot2::ggplot(d, aes(x = Taxa, y = value)) +
-      theme_bw() +
+      ggplot2::theme_bw() +
       geom_bar(stat = "identity", fill = "darkblue") +
-      coord_flip() +
-      labs(title = paste("Top drivers: community type", k))
+      ggplot2::coord_flip() +
+      ggplot2::labs(title = paste("Top drivers: community type", k))
   }
 
 
@@ -2396,23 +2461,20 @@ app_server <- function(input, output, session) {
 
     # Data Transformation and Filtering
     pseq.comp <- microbiome::transform(current_physeq(), "compositional")
-    taxa <- core_members(pseq.comp, detection = input$detectionThreshold / 100, prevalence = input$prevalenceThreshold / 100)
+    taxa <- microbiome::core_members(pseq.comp, detection = input$detectionThreshold / 100, prevalence = input$prevalenceThreshold / 100)
     pseq <- phyloseq::prune_taxa(taxa, current_physeq())
 
     # Aggregate at selected taxonomic rank
-    if (input$taxRankDMM %in% c("Genus", "Species")) {
-      pseq <- tax_glom(pseq, taxrank = input$taxRankDMM)
-    } else {
-      pseq <- tax_glom(pseq, taxrank = input$taxRankDMM)
-    }
+    pseq <- phyloseq::tax_glom(pseq, taxrank = input$taxRankDMM)
 
-    dat <- abundances(pseq)
+    dat <- microbiome::abundances(pseq)
     count <- as.matrix(t(dat))
     count <- count[rowSums(count) > 0, ]
 
     if (nrow(count) > 0) {
       # Model Fitting
-      fit <- lapply(1:input$numComponents, dmn, count = count, verbose = TRUE)
+      fit <- lapply(1:input$numComponents, DirichletMultinomial::dmn, count = count, verbose = TRUE)
+
       lplc <- sapply(fit, DirichletMultinomial::laplace)
       aic <- sapply(fit, DirichletMultinomial::AIC)
       bic <- sapply(fit, DirichletMultinomial::BIC)
@@ -2429,29 +2491,29 @@ app_server <- function(input, output, session) {
 
       # Render Mixture Parameters
       output$mixtureParams <- renderPrint({
-        mixturewt(best)
+        DirichletMultinomial::mixturewt(best)
       })
 
       # Render Sample Assignments
-      sample_assignments <- apply(mixture(best), 1, which.max)
+      sample_assignments <- apply(DirichletMultinomial::mixture(best), 1, which.max)
       output$sampleAssignments <- renderPrint({
         sample_assignments
       })
 
       # Filter metadata to only include samples in the count matrix
       valid_samples <- rownames(count)
-      metadata <- as(sample_data(current_physeq()), "data.frame")
+      metadata <- as(phyloseq::sample_data(current_physeq()), "data.frame")
       metadata_filtered <- metadata[valid_samples, ]
 
       # Update metadata with sample assignments
       metadata_filtered$DMM_Cluster <- factor(sample_assignments)
 
       # Re-create phyloseq object with filtered metadata
-      updated_pseq <- phyloseq(otu_table(current_physeq()), phyloseq::tax_table(current_physeq()), sample_data(metadata_filtered), phy_tree(current_physeq()))
+      updated_pseq <- phyloseq(otu_table(current_physeq()), phyloseq::tax_table(current_physeq()), phyloseq::sample_data(metadata_filtered), phy_tree(current_physeq()))
 
       # Render Driver Plots
       output$driverPlotsUI <- renderUI({
-        plots <- lapply(1:ncol(fitted(best)), function(k) {
+        plots <- lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
           plotname <- paste("driverPlot", k, sep = "")
           plotOutput(plotname)
         })
@@ -2459,7 +2521,7 @@ app_server <- function(input, output, session) {
       })
 
       # Using the function for rendering plots
-      lapply(1:ncol(fitted(best)), function(k) {
+      lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
         output[[paste("driverPlot", k, sep = "")]] <- renderPlot({
           generateDriverPlot(best, current_physeq(), k)
         })
@@ -2525,7 +2587,7 @@ app_server <- function(input, output, session) {
         },
         content = function(file) {
           pdf(file)
-          lapply(1:ncol(fitted(best)), function(k) {
+          lapply(1:ncol(DirichletMultinomial::fitted(best)), function(k) {
             print(generateDriverPlot(best, current_physeq(), k))
           })
           dev.off()
@@ -2583,14 +2645,14 @@ app_server <- function(input, output, session) {
 
   # Function to impute missing values with the median
   impute_median <- function(pseq) {
-    metadata <- sample_data(pseq)
+    metadata <- phyloseq::sample_data(pseq)
     imputed_metadata <- metadata
     for (col in colnames(metadata)) {
       if (is.numeric(metadata[[col]])) {
         imputed_metadata[[col]][is.na(imputed_metadata[[col]])] <- median(imputed_metadata[[col]], na.rm = TRUE)
       }
     }
-    sample_data(pseq) <- imputed_metadata
+    phyloseq::sample_data(pseq) <- imputed_metadata
     return(pseq)
   }
 
@@ -2617,7 +2679,7 @@ app_server <- function(input, output, session) {
     }
 
     # Update other inputs
-    sample_data_cols <- colnames(sample_data(pseq))
+    sample_data_cols <- colnames(phyloseq::sample_data(pseq))
     updateSelectInput(session, "constraints", choices = sample_data_cols)
     updateSelectInput(session, "conditions", choices = c("None", sample_data_cols))
     updateSelectInput(session, "colorBy", choices = sample_data_cols)
@@ -2655,7 +2717,7 @@ app_server <- function(input, output, session) {
       if (phyloseq::taxa_are_rows(pseq)) {
         otu_table <- t(otu_table)
       }
-      metadata <- data.frame(sample_data(pseq))
+      metadata <- data.frame(phyloseq::sample_data(pseq))
 
       # Perform capscale analysis
       CAP_distance <- vegan::capscale(formula = formula, data = metadata, distance = input$RDAdistanceMetric, sqrt.dist = TRUE)
@@ -2663,9 +2725,9 @@ app_server <- function(input, output, session) {
 
 
       # Extract species and site scores
-      species_scores <- scores(CAP_distance, display = "species")
-      site_scores <- scores(CAP_distance, display = "sites")
-      env_vectors <- scores(CAP_distance, display = "bp")
+      species_scores <- vegan::scores(CAP_distance, display = "species")
+      site_scores <- vegan::scores(CAP_distance, display = "sites")
+      env_vectors <- vegan::scores(CAP_distance, display = "bp")
 
       # Convert scores to data frames
       species_df <- as.data.frame(species_scores)
@@ -2684,14 +2746,14 @@ app_server <- function(input, output, session) {
 
       # Generate the plot
       rda_plot <- ggplot() +
-        geom_point(data = species_df, aes(x = CAP1, y = CAP2), size = 2, shape = 17, alpha = 0.7, color = "red") +
-        geom_text(data = species_df, aes(x = CAP1, y = CAP2, label = Taxa), size = 3, hjust = 1.1, vjust = 1.1, color = "darkred") +
-        geom_point(data = site_df, aes(x = CAP1, y = CAP2, color = Group, shape = Group), size = 4, alpha = 0.7) +
-        geom_segment(data = env_df, aes(x = 0, y = 0, xend = CAP1, yend = CAP2), arrow = arrow(length = unit(0.3, "cm")), color = "blue") +
-        scale_color_manual(values = setNames(group_colors, group_levels)) +
-        scale_shape_manual(values = setNames(group_shapes, group_levels)) +
-        labs(title = "CAP (dbRDA) Plot", x = "CAP1", y = "CAP2", color = "Group", shape = "Group") +
-        theme_minimal()
+        ggplot2::geom_point(data = species_df, aes(x = CAP1, y = CAP2), size = 2, shape = 17, alpha = 0.7, color = "red") +
+        ggplot2::geom_text(data = species_df, aes(x = CAP1, y = CAP2, label = Taxa), size = 3, hjust = 1.1, vjust = 1.1, color = "darkred") +
+        ggplot2::geom_point(data = site_df, aes(x = CAP1, y = CAP2, color = Group, shape = Group), size = 4, alpha = 0.7) +
+        ggplot2::geom_segment(data = env_df, aes(x = 0, y = 0, xend = CAP1, yend = CAP2), arrow = arrow(length = unit(0.3, "cm")), color = "blue") +
+        ggplot2::scale_color_manual(values = setNames(group_colors, group_levels)) +
+        ggplot2::scale_shape_manual(values = setNames(group_shapes, group_levels)) +
+        ggplot2::labs(title = "CAP (dbRDA) Plot", x = "CAP1", y = "CAP2", color = "Group", shape = "Group") +
+        ggplot2::theme_minimal()
 
       # Render the ggplot
       ggplot_plots_rda(rda_plot)
@@ -2703,7 +2765,7 @@ app_server <- function(input, output, session) {
           paste0("CAP_RDA_Plot_", Sys.Date(), ".", input$rda_filetype)
         },
         content = function(file) {
-          ggsave(
+          ggplot2::ggsave(
             file,
             plot = ggplot_plots_rda(),
             width = 10,
@@ -2728,8 +2790,8 @@ app_server <- function(input, output, session) {
 
 
 
-      eigenvalues <- as.data.frame(eigenvals(CAP_distance))
-      adjusted_r2 <- RsquareAdj(CAP_distance)
+      eigenvalues <- as.data.frame(vegan::eigenvals(CAP_distance))
+      adjusted_r2 <- vegan::RsquareAdj(CAP_distance)
       regression_coefficients <- as.data.frame(coef(CAP_distance))
       site_scores <- as.data.frame(scores(CAP_distance, display = "sites"))
       species_scores <- as.data.frame(scores(CAP_distance, display = "species"))

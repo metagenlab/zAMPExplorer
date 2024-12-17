@@ -1,0 +1,10 @@
+name: zAMPExplorer
+title:
+username: metagenlab
+account: metagenlab
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13479484
+bundleId: 9526894
+url: https://metagenlab.shinyapps.io/zAMPExplorer/
+version: 1

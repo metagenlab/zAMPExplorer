@@ -20,16 +20,25 @@
 ##
 golem::fill_desc(
   pkg_name = "zAMPExplorer", # The name of the golem package containing the app (typically lowercase, no underscore or periods)
-  pkg_title = "PKG_TITLE", # What the Package Does (One Line, Title Case, No Period)
-  pkg_description = "PKG_DESC.", # What the package does (one paragraph).
+  pkg_title = "A Versatile Shiny App for Microbiota Profiling in Clinical
+    Microbiology", # What the Package Does (One Line, Title Case, No Period)
+  pkg_description = "A Shiny web application offering a user-friendly, accessible,
+    and reproducible platform for downstream analysis of 16S rRNA-based
+    metagenomics data.  Key features include quality control
+    visualizations (e.g., rarefaction curves), community composition
+    plots, and statistical analyses for alpha- and beta-diversity.  The
+    app integrates advanced features like community typing with Dirichlet
+    multinomial modeling (DMM) and metadata-driven redundancy analysis
+    (RDA) to explore microbial associations with clinical and experimental
+    variables.", # What the package does (one paragraph).
   authors = person(
-    given = "AUTHOR_FIRST", # Your First Name
-    family = "AUTHOR_LAST", # Your Last Name
-    email = "AUTHOR@MAIL.COM", # Your email
+    given = "Sedreh", # Your First Name
+    family = "Nassirnia", # Your Last Name
+    email = "Sedreh.Nassirnia@chuv.ch", # Your email
     role = c("aut", "cre") # Your role (here author/creator)
   ),
-  repo_url = NULL, # The URL of the GitHub repo (optional),
-  pkg_version = "0.0.0.9000", # The version of the package containing the app
+  repo_url = "https://github.com/metagenlab/zAMPExplorer", # The URL of the GitHub repo (optional),
+  pkg_version = "0.1.0", # The version of the package containing the app
   set_options = TRUE # Set the global golem options
 )
 
@@ -43,7 +52,7 @@ golem::use_readme_rmd(open = FALSE)
 devtools::build_readme()
 # Note that `contact` is required since usethis version 2.1.5
 # If your {usethis} version is older, you can remove that param
-usethis::use_code_of_conduct(contact = "Golem User")
+usethis::use_code_of_conduct(contact = "Sedreh.Nassirnia@chuv.ch")
 usethis::use_lifecycle_badge("Experimental")
 usethis::use_news_md(open = FALSE)
 
@@ -65,7 +74,7 @@ usethis::use_git()
 ## Sets the remote associated with 'name' to 'url'
 usethis::use_git_remote(
   name = "origin",
-  url = "https://github.com/<OWNER>/<REPO>.git"
+  url = "https://github.com/metagenlab/zAMPExplorer"
 )
 
 # You're now set! ----

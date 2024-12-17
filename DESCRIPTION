@@ -25,40 +25,53 @@ License: GPL-3
 URL: https://github.com/metagenlab/zAMPExplorer
 BugReports: https://github.com/metagenlab/zAMPExplorer/issues
 Imports: 
-    shinyWidgets,
-    tidyr,
-    dichromat,
-    ComplexHeatmap,
     config,
+    DirichletMultinomial,
     dplyr,
     DT,
+    microViz,
     forcats,
-    fs,
+    reshape2,
     ggplot2,
-    ggside,
     ggvenn,
-    grid,
-    htmlwidgets,
-    InteractiveComplexHeatmap,
+    golem,
+    graphics,
+    grDevices,
+    Maaslin2,
+    magrittr,
     microbiome,
     MicrobiotaProcess,
-    microViz,
     phyloseq,
-    plotly,
-    RColorBrewer,
-    reshape2,
-    scales,
     shiny,
     shinydashboard,
     shinyFiles,
+    shinyWidgets,
+    stats,
+    tidyr,
     UpSetR,
+    utils,
     vegan,
-    webshot,
     writexl,
-    golem
-biocViews: Microbiology, Metabarcoding, Visualization, StatisticalMethod
-Config/ci-settings:lint_free: true
-Config/ci-tools:testthat
+    fs,
+    scales,
+    RColorBrewer,
+    plotly,
+    microViz,
+    InteractiveComplexHeatmap
+Suggests: 
+    spelling,
+    htmlwidgets,
+    webshot,
+    ggside,
+    ComplexHeatmap,
+    grid,
+    testthat (>= 3.0.0)
+Remotes: 
+    david-barnett/microViz
+biocViews: Shinyapp, StatisticalMethod, Metabarcoding, Visualization, Microbiology
+Config/ci-settings: lint_free: true
+Config/ci-tools: testthat
+Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
 LazyData: true
