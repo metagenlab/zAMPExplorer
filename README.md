@@ -57,16 +57,16 @@ exploration.
 
 ## Installation
 
-### Method 1: Install from Source (GitHub)
+### Method 1: Install from source (GitHub)
 
 ``` r
 
 # Download the install_dependencies.R script to install required dependencies.
-download.file("https://raw.githubusercontent.com/metagenlab/zAMPExplorer/latest/R/install_dependencies.R",
-                              "install_dependencies.R")
+download.file("https://github.com/metagenlab/zAMPExplorer/tree/latest/R/install_dependencies.R",
+              "install_dependencies.R")
 
 # Run the script to install all dependencies
-source("install_dependencies.R")
+source("./R/install_dependencies.R")
 
 
 # If not already installed 
@@ -78,7 +78,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 remotes::install_github("metagenlab/zAMPExplorer", ref = "latest", dependencies = TRUE)
 ```
 
-# Method 2 : Install using R-universe
+### Method 2: Install using R-universe
 
 ``` r
 
@@ -86,7 +86,7 @@ remotes::install_github("metagenlab/zAMPExplorer", ref = "latest", dependencies 
 install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
-# Method 3 : Clone the repository and install zAMPExplorer locally
+### Method 3: Clone the repository and install zAMPExplorer locally
 
 ``` r
 # Clone repository (in bash)
@@ -113,6 +113,61 @@ library(zAMPExplorer)
 # Launch the application
 zAMPExplorer::zAMPExplorer_app()
 ```
+
+### Method 4: Docker installation for zAMPExplorer
+
+#### Step 1: Install Docker
+
+You can run zAMPExplorer as a Docker container without installing R or
+its dependencies directly on your machine.
+
+Ensure you have Docker installed on your system. You can download it
+from the [Docker website](https://www.docker.com)
+
+- **For Windows/Mac**: Install docker desktop.
+- **For Linux**: Follow the platform-specific instructions provided on
+  the Docker website.
+
+``` r
+
+#To verify that Docker is installed, run (in bash):
+docker --version
+```
+
+#### Step 2: Install Docker
+
+``` r
+
+#Option1: Pull the pre-Built image. 
+#You can pull the pre-built Docker image directly from a container registry (replace with your registry info if applicable):
+
+docker pull <your-dockerhub-username>/zampexplorer:latest
+
+#Option 2: Build the image locally
+#If cloned the zAMPExplorer source code from GitHub, navigate to the directory containing the Dockerfile and run:
+
+docker build --platform linux/x86_64 -t zampexplorer:latest .
+```
+
+#### Step 3: Run zAMPExplorer
+
+``` r
+
+docker run --rm -p 3838:3838 zampexplorer:latest
+
+#--rm: Removes the container after it stops.
+#-p 3838:3838: Maps the container’s Shiny app port 3838 to your local port 3838.
+```
+
+\####Step 4: Access the Application
+
+``` r
+
+#Open a web browser and navigate to:
+http://localhost:3838
+```
+
+The zAMPExplorer Shiny app will be running and accessible on this URL.
 
 ## Overview of the interface
 
