@@ -66,7 +66,7 @@ download.file("https://github.com/metagenlab/zAMPExplorer/tree/latest/R/install_
               "install_dependencies.R")
 
 # Run the script to install all dependencies
-source("./R/install_dependencies.R")
+source("install_dependencies.R")
 
 
 # If not already installed 
