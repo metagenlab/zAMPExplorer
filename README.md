@@ -98,7 +98,7 @@ cd zAMPExplorer
 
 ``` r
 #Install dependencies in R
-source("./R/install_dependencies.R")
+source("install_dependencies.R")
 
 # Install zAMPExplorer
 install.packages(".", repos = NULL, type = "source")
@@ -174,7 +174,7 @@ The zAMPExplorer Shiny app will be running and accessible on this URL.
 zAMPExplorer is divided into several tabs, each dedicated to a specific
 type of analysis:
 
-![Upload Data Tab](man/figures/1.png) \### Check Phyloseq Components
+![Upload Data Tab](inst/figures/1_2.png) \### Check Phyloseq Components
 Upload your `phyloseq` object here. This object is the output of the
 zAMP pipeline and serves as the input for all downstream analyses in the
 app.
