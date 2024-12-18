@@ -1,3 +1,4 @@
+^inst/figures$
 ^renv/
 ^renv\.lock$
 ^.*\.Rproj$
