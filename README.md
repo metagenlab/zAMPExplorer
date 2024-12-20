@@ -53,7 +53,7 @@ exploration.
 - **R**: Version 4.3.2 or later
 - **RStudio**: Recommended for running the Shiny app
 - **zAMP**: zAMPExplorer is designed to work with output generated from
-- **microViz**: Some functionalities of zAMPExplorer depend on [microViz](https://david-barnett.github.io/microViz/). Since it is not available on CRAN, please install it before running the app:
+- **microViz**: Some functionalities of zAMPExplorer depend on [microViz](https://david-barnett.github.io/microViz/). Since it is not available on CRAN, please install it before running the app.
   
 
 ## Installation
