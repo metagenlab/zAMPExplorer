@@ -58,8 +58,11 @@ Imports:
     tibble,
     htmlwidgets,
     ComplexHeatmap,
-    DirichletMultinomial,
     InteractiveComplexHeatmap
+Depends:
+    microViz,
+    DirichletMultinomial,
+    Maaslin2
 Suggests: 
     config,
     spelling,
