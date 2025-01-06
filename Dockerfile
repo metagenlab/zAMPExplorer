@@ -1,5 +1,5 @@
 FROM mambaorg/micromamba
-LABEL org.opencontainers.image.source=https://github.com/metagenlab/assembly_finder
+LABEL org.opencontainers.image.source=https://github.com/metagenlab/zAMPExplorer
 LABEL org.opencontainers.image.description="Shiny app for amplicon data visualization and stats"
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER . /pkg
