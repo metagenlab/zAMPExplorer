@@ -58,25 +58,63 @@ exploration.
 
 ## Installation
 
-### Method 1: Install using R-universe
+### Method 1: Docker installation for zAMPExplorer
+
+#### Step 1: Install Docker
+
+You can run zAMPExplorer as a Docker container without installing R or its dependencies directly on your machine.
+
+Ensure you have Docker installed on your system. You can download it from the Docker website
+
+- **For Windows/Mac**: Install docker desktop.
+- **For For Linux**: Follow the platform-specific instructions provided on the [Docker website](https://www.docker.com).
+
+``` r
+#To verify that Docker is installed, run (in bash):
+#docker --version
+
+```
+
+#### Step 2: Install docker image 
+
+``` r
+#Option1: Pull the pre-Built image. 
+#You can pull the pre-built Docker image directly from a container registry (replace with your registry info if applicable):
+
+#docker pull <your-dockerhub-username>/zampexplorer:latest
+
+#Option 2: Build the image locally
+#If cloned the zAMPExplorer source code from GitHub, navigate to the directory containing the Dockerfile and run:
+
+#docker build --platform linux/x86_64 -t zampexplorer:latest 
+
+```
+
+#### Step 3: Run zAMPExplorer
+
+``` r
+#docker run --rm -p 3838:3838 zampexplorer:latest
+
+#--rm: Removes the container after it stops.
+#-p 3838:3838: Maps the container’s Shiny app port 3838 to your local port 3838.
+
+```
+
+#### Step 4: Access the Application
+
+``` r
+#Open a web browser and navigate to:
+#http://localhost:3838
+The zAMPExplorer Shiny app will be running and accessible on this URL.
+
+```
+
+### Method 2: Install using R-universe
 
 ``` r
 
 # Install zAMPExplorer from R-universe
 install.packages('zAMPExplorer', repos = c('https://metagenlab.r-universe.dev', 'https://cloud.r-project.org'))
-```
-
-### Method 2: Install from source (GitHub)
-
-``` r
-
-# If not already installed 
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-
-#Install zAMPExplorer
-remotes::install_github("metagenlab/zAMPExplorer", dependencies = TRUE)
 ```
 
 ### Method 3: Clone the repository and install zAMPExplorer locally
@@ -87,9 +125,6 @@ git clone https://github.com/metagenlab/zAMPExplorer.git
 
 # Navigate to the app's directory
 cd zAMPExplorer
-```
-
-``` r
 
 # Install zAMPExplorer
 install.packages(".", repos = NULL, type = "source")
