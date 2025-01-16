@@ -837,7 +837,7 @@ app_server <- function(input, output, session) {
         strip.text.x = ggplot2::element_text(face = "bold")
       )
 
-    prare2 # Return the ggplot object
+    prare # Return the ggplot object
   })
 
   # Render the rarefaction plot using Plotly for interactivity
