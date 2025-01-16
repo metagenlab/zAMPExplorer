@@ -53,7 +53,7 @@ exploration.
 - **R**: Version 4.3.2 or later
 - **RStudio**: Recommended for running the Shiny app
 - **zAMP**: zAMPExplorer is designed to work with output generated from
-- **microViz**: Some functionalities of zAMPExplorer depend on [microViz](https://david-barnett.github.io/microViz/), [MicrobiotaProcess](https://github.com/YuLab-SMU/MicrobiotaProcess), [DirichletMultinomial](https://github.com/mtmorgan/DirichletMultinomial) and , [InteractiveComplexHeatmap](https://github.com/jokergoo/InteractiveComplexHeatmap). Please install them before running the app.
+Some functionalities of zAMPExplorer depend on [microViz](https://david-barnett.github.io/microViz/), [MicrobiotaProcess](https://github.com/YuLab-SMU/MicrobiotaProcess), [DirichletMultinomial](https://github.com/mtmorgan/DirichletMultinomial) and [InteractiveComplexHeatmap](https://github.com/jokergoo/InteractiveComplexHeatmap). Please install them before running the app.
   
 
 ## Installation
